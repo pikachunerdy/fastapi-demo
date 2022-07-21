@@ -79,6 +79,8 @@ class DeviceHandler:
             mongo_devices = mongo_devices.find(NearSphere(MongoDevice.location,device_filter.longitude, device_filter.latitude, device_filter.distance))
         mongo_devices = mongo_devices.to_list()
         mongo_devices = await mongo_devices
+        if device_filter.start_index is not None and device_filter.end_index is not None:
+            mongo_devices = mongo_devices[device_filter.start_index:device_filter.end_index]
         return mongo_devices_to_devices(mongo_devices, device_filter)
 
     def get_device_data(self, measurement_period_type : str) -> DeviceData:

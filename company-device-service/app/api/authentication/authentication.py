@@ -29,7 +29,7 @@ class TokenData(BaseModel):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/token")
 
 async def token_authentication(token: str = Depends(oauth2_scheme)) -> TokenData:
     print("auth")
