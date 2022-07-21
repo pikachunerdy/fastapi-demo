@@ -28,11 +28,14 @@ echo "Starting Containers"
 remove_containers
 #Start Containers
 start_containers
+rm -r ./schemas  2> /dev/null
+cp -r ../schemas ./schemas 
 
 echo "----------------------"
 echo "Starting Service"
 uvicorn app.api.main:app --reload --port 8001
 
+rm -r ./schemas 2> /dev/null
 echo "----------------------"
 echo "Stopping Containers"
 remove_containers
