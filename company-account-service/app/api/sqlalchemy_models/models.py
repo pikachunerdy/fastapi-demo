@@ -8,7 +8,7 @@ from sqlalchemy.sql.sqltypes import Boolean, Integer, String
 #   - should contain location information and date information and completion status and device id if completed
 
 Base = declarative_base()
-# metadata = Base.metadata
+metadata = Base.metadata
 
 class SQLCompany(Base):
     __tablename__ = 'sqlcompanies'

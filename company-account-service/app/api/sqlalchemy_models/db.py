@@ -6,13 +6,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 import asyncio
+
+import databases
+import sqlalchemy
     # async with engine.begin() as conn:
     #     await conn.run_sync(Base.metadata.drop_all)
     #     await conn.run_sync(Base.metadata.create_all)
 
-print(environmentSettings.database_url)
-engine = create_async_engine(environmentSettings.database_url)
-async_session_maker = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+# engine = create_async_engine(environmentSettings.database_url)
+# async_session_maker = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+# print(environmentSettings.database_url)
+
+
+database = databases.Database(environmentSettings.database_url)
+# metadata = sqlalchemy.MetaData()
+# engine = sqlalchemy.create_engine(
+#     environmentSettings.database_url
+# )
+# metadata.create_all(engine)
+
+
 
 
 # engine = create_async_engine(

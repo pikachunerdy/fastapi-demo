@@ -3,17 +3,20 @@ from app.api.main import app
 from app.api.models.account_models import Account
 from app.api.services.account_handler import AccountHandler
 from app.api.sqlalchemy_models.models import SQLCompany
-from app.api.sqlalchemy_models.db import async_session_maker
+# from app.api.sqlalchemy_models.db import async_session_maker
 from sqlalchemy import insert
+
+from app.api.sqlalchemy_models.db import database
+
 
 @app.get('/create_user', tags=["Test"])
 async def get_create_user():
     '''Create a fake user and company, the user name and password are test'''
-    async with async_session_maker() as session:
+    from app.api.main import async_session
+    # async with async_session_maker() as session:
+    async with async_session() as session:
         sqlCompany : SQLCompany = SQLCompany()
         sqlCompany.company_id = 0
-        print(session)
-        print(async_session_maker)
         session.add(sqlCompany)
         await session.commit()
         account = Account.construct()

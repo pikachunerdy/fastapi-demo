@@ -19,6 +19,8 @@ if environmentSettings.ENV == "DEV":
 origins = [
     "http://localhost",
     "https://dashboard-deploy-h3gpr.ondigitalocean.app",
+    "http://localhost:3000",
+    "*"
 ]
 
 app.add_middleware(

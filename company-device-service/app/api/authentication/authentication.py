@@ -32,16 +32,16 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 async def token_authentication(token: str = Depends(oauth2_scheme)) -> TokenData:
-    #print("auth")
+    print("auth")
     try:
-     #   print(token)
+        print(token)
         payload = jwt.decode(token, environmentSettings.jwt_secret, algorithms=[environmentSettings.jwt_algorithm])
-      #  print(payload)
+        print(payload)
         tokenData = TokenData(**payload)
-       # print(tokenData)
+        print(tokenData)
         if tokenData.exp < int(time.time()): raise InvalidAccessToken(token, "expired")
         return tokenData
     except:
-       # print("fail")
+        print("fail")
         pass
     raise InvalidAccessToken(token, "find token")
