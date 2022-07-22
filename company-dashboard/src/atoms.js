@@ -22,3 +22,11 @@ export const authState = atom({
         token : ''
     }
 });
+
+export const panelSizes = atom({
+    key : 'panelSizes',
+    default : {
+        hTop : 0,
+        hBottom : 0,
+    }
+})

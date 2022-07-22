@@ -4,8 +4,9 @@ import { StyleSheet, css } from 'aphrodite';
 import {
   useRecoilState,
   useRecoilValue,
+  useSetRecoilState,
 } from 'recoil';
-import { deviceListState, authState } from './atoms.js';
+import { deviceListState, authState, panelSizes } from './atoms.js';
 import { getRecoil, setRecoil } from "recoil-nexus";
 import {
   TabContent,
@@ -26,10 +27,10 @@ import {
   Collapse,
   Modal, ModalHeader, ModalBody, ModalFooter
 } from "reactstrap";
-import React, { useState, memo, useEffect } from "react";
+import React, { useState, memo, useEffect, Component } from "react";
 import SplitPane from "react-split-pane";
 import Pane from "react-split-pane";
-import Map from 'google-map-react';
+import MapContainer from './Map';
 
 var auth_link = "http://localhost:8000";
 var device_link = "http://localhost:8001";
@@ -90,7 +91,7 @@ const sizes = {
   simInfo: 37
 };
 
-const AnyReactComponent = ({ text }) => <div>{text}</div>;
+
 const MapComponent = (args) => {
   const K_WIDTH = 40;
   const K_HEIGHT = 40;
@@ -113,17 +114,9 @@ const MapComponent = (args) => {
     padding: 4
   };
 
-  return <>
-    <div style={{ height: 500, width: 500 }}>
-      {/* <GoogleMapReact>
-        <AnyReactComponent
-          lat={59.955413}
-          lng={30.337844}
-          text="My Marker"
-        />
-      </GoogleMapReact> */}
-    </div>
-  </>;
+  return <div style={{ width: "100px", height: "100px" }}>
+    <MapContainer style={{ width: "100px", height: "100px" }}></MapContainer>
+  </div>;
 }
 
 const DeviceListComponent = (args) => {
@@ -142,6 +135,7 @@ const DeviceListComponent = (args) => {
 }
 
 const HorizontalSplit = props => {
+  // const panel = useRecoilValue(panelSizes);
   const vh =
     Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) -
     sizes.header;
@@ -152,6 +146,7 @@ const HorizontalSplit = props => {
     setTopHeight(size[0]);
     setBottomHeight(size[1]);
   };
+  setRecoil(panelSizes,{...getRecoil(panelSizes), hTop : topHeight, hBottom : bottomHeight});
   return (
     <div>
       <SplitPane split="horizontal" onChange={size => onChange(size)}>
@@ -161,7 +156,7 @@ const HorizontalSplit = props => {
           maxSize={parseInt(0.9 * vh).toString() + "px"}
         >
           <div style={{ width: "100%", height: "100%" }}>
-            <MapComponent style={{ width: 100, height: 100 }}></MapComponent>
+            <MapComponent style={{ width: "100%", height: "100%" }}></MapComponent>
           </div>
         </Pane>
         <Pane
@@ -203,7 +198,7 @@ const VerticalSplit = props => {
     setLeftWidth(size[0]);
     setRightWidth(size[1]);
   };
-
+  setRecoil(panelSizes,{...getRecoil(panelSizes), vLeft : leftWidth, vRight : rightWidth});
   return (
     <>
       <SplitPane
@@ -233,6 +228,11 @@ const AppStyles = StyleSheet.create({
 
 });
 
+const mapStyles = {
+  width: '100px',
+  height: '100px'
+};
+
 function App() {
   const defaultProps = {
     center: { lat: 59.95, lng: 30.33 },
@@ -246,21 +246,19 @@ function App() {
   };
 
   auth_manager.get_auth_key(device_list_manager.get_device_list);
-  return (
-    // <div className={'App'} style={{ height: "100%" }}>
-    //   <Navbar style={navBarStyle}>
-    //     <h1>Dashboard</h1>
-    //   </Navbar>
-    //   <VerticalSplit style={{ height: "100%" }}></VerticalSplit>
-    //   {/* <SplitPane split="vertical" defaultSize={200} primary="second">
-    //     <div />
-    //     <div />
-    //   </SplitPane> */}
-    // </div>
 
-    <div style={{ height: '300px', width: '300px' }}>
-      <Map></Map>
+  return (
+    <div className={'App'} style={{ height: "100%" }}>
+      <Navbar style={navBarStyle}>
+        <h1>Dashboard</h1>
+      </Navbar>
+      <VerticalSplit style={{ height: "100%" }}></VerticalSplit>
+      {/* <SplitPane split="vertical" defaultSize={200} primary="second">
+        <div />
+        <div />
+      </SplitPane> */}
     </div>
+    
   );
 }
 
