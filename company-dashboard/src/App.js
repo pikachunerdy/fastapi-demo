@@ -6,7 +6,7 @@ import {
   useRecoilValue,
   useSetRecoilState,
 } from 'recoil';
-import { deviceListState, authState, panelSizes } from './atoms.js';
+import { deviceListState, authState, panelSizes, selectedDeviceState } from './atoms.js';
 import { getRecoil, setRecoil } from "recoil-nexus";
 import {
   TabContent,
@@ -25,53 +25,17 @@ import {
   Badge,
   Navbar,
   Collapse,
+  Container,
   Modal, ModalHeader, ModalBody, ModalFooter
 } from "reactstrap";
 import React, { useState, memo, useEffect, Component } from "react";
 import SplitPane from "react-split-pane";
 import Pane from "react-split-pane";
 import MapContainer from './Map';
-
+import { auth_manager, device_list_manager } from './managers';
 var auth_link = "http://localhost:8000";
 var device_link = "http://localhost:8001";
 
-
-
-var auth_manager = {
-  get_auth_key: function (callback) {
-    var obj = {
-      link: auth_link + '/token',
-      object: {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: 'username=test&password=test'
-      }
-    }
-    fetch(obj.link, obj.object).then(response => response.json()).then(response => { console.log(response); setRecoil(authState, { token: response.access_token }); console.log(getRecoil(authState).token) }).then(() => { console.log("running callback"); callback(); });
-  }
-}
-
-var device_list_manager = {
-  get_device_list: function () {
-    console.log(getRecoil(authState).token);
-    var obj = {
-      link: device_link + '/devices',
-      object: {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + getRecoil(authState).token,
-        }
-      }
-    };
-    console.log(obj);
-    fetch(obj.link, obj.object)
-      .then(response => response.json())
-      .then(data => setRecoil(deviceListState, data));
-  }
-}
 
 const blockWidth = 172;
 const blockHeight = 36;
@@ -113,9 +77,10 @@ const MapComponent = (args) => {
     fontWeight: 'bold',
     padding: 4
   };
+  var deviceList = useRecoilValue(deviceListState);
 
-  return <div style={{ width: "100px", height: "100px" }}>
-    <MapContainer style={{ width: "100px", height: "100px" }}></MapContainer>
+  return <div style={{ width: "100%", height: "100%" }}>
+    <MapContainer style={{ width: "100%", height: "100%" }}></MapContainer>
   </div>;
 }
 
@@ -123,14 +88,42 @@ const DeviceListComponent = (args) => {
   const deviceList = useRecoilValue(deviceListState);
 
   return <>
-    {
-      deviceList.devices.map((device) => {
-        return <>
-          <p>{device.device_id}</p>
-        </>
-      })
-    }
+    <Card>
+      <CardHeader>
+        Devices
+      </CardHeader>
+      <CardBody>
+        {
+          deviceList.devices.map((device) => {
+            // console.log(device);
+            return <>
+              <Card id={device.device_id}>
+                <CardBody>
+                  <Container>
+                    <Row>
+                      <Col>
+                        Device ID: {device.device_id}
+                      </Col>
+                      <Col>
+                        Warning Level: {device.warning_level}
+                      </Col>
+                      <Button>
+                        {device.pinned ? "Pinned" : "Not Pinned"}
+                      </Button>
+                      <Button onClick={() => {device_list_manager.select_device(device.device_id);}}>
+                        View
+                      </Button>
+                    </Row>
+                  </Container>
+                </CardBody>
+              </Card>
+            </>
+          })
+        }
+      </CardBody>
+    </Card>
   </>
+
 
 }
 
@@ -146,7 +139,7 @@ const HorizontalSplit = props => {
     setTopHeight(size[0]);
     setBottomHeight(size[1]);
   };
-  setRecoil(panelSizes,{...getRecoil(panelSizes), hTop : topHeight, hBottom : bottomHeight});
+  setRecoil(panelSizes, { ...getRecoil(panelSizes), hTop: topHeight, hBottom: bottomHeight });
   return (
     <div>
       <SplitPane split="horizontal" onChange={size => onChange(size)}>
@@ -155,9 +148,9 @@ const HorizontalSplit = props => {
           minSize={parseInt(0.1 * vh).toString() + "px"}
           maxSize={parseInt(0.9 * vh).toString() + "px"}
         >
-          <div style={{ width: "100%", height: "100%" }}>
-            <MapComponent style={{ width: "100%", height: "100%" }}></MapComponent>
-          </div>
+          <div id="mapID">
+            <MapComponent></MapComponent>
+            </div>
         </Pane>
         <Pane
           initialSize={bottomHeight}
@@ -182,8 +175,15 @@ const HorizontalSplit = props => {
 };
 
 const DeviceInfoPanel = (args) => {
-
-  return <></>
+  const selectedDevice = useRecoilValue(selectedDeviceState);
+  return <>
+  <Card>
+    <CardHeader>DeviceID: {selectedDevice.device_id}</CardHeader>
+    <CardBody>
+      
+    </CardBody>
+  </Card>
+  </>
 }
 
 const VerticalSplit = props => {
@@ -198,7 +198,7 @@ const VerticalSplit = props => {
     setLeftWidth(size[0]);
     setRightWidth(size[1]);
   };
-  setRecoil(panelSizes,{...getRecoil(panelSizes), vLeft : leftWidth, vRight : rightWidth});
+  setRecoil(panelSizes, { ...getRecoil(panelSizes), vLeft: leftWidth, vRight: rightWidth });
   return (
     <>
       <SplitPane
@@ -214,7 +214,7 @@ const VerticalSplit = props => {
         </Pane>
         <Pane minSize="10%" maxSize="90%">
           <div style={{ overflowY: "scroll" }}>
-            <DeviceListComponent></DeviceListComponent>
+            <DeviceInfoPanel></DeviceInfoPanel>
           </div>
         </Pane>
       </SplitPane>
@@ -228,17 +228,7 @@ const AppStyles = StyleSheet.create({
 
 });
 
-const mapStyles = {
-  width: '100px',
-  height: '100px'
-};
-
 function App() {
-  const defaultProps = {
-    center: { lat: 59.95, lng: 30.33 },
-    zoom: 11
-  };
-
   const navBarStyle = {
     height: sizes.header,
     background: colors.pale_red,
@@ -258,7 +248,7 @@ function App() {
         <div />
       </SplitPane> */}
     </div>
-    
+
   );
 }
 

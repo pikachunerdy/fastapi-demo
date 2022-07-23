@@ -47,7 +47,7 @@ async def startup():
         if os.getenv('FIRST_START') == 'true' or os.getenv('FIRST_START') is None:
             import pipes
             print("export FIRST_START=%s" % (pipes.quote('false')))
-            await asyncio.sleep(10)
+            await asyncio.sleep(15)
             async with engine.begin() as conn:
                 await conn.run_sync(metadata.drop_all)
                 await conn.run_sync(metadata.create_all)
