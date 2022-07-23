@@ -59,6 +59,42 @@ export var device_list_manager = {
       .then(response => response.json())
       .then(data => { setRecoil(selectedDeviceState, data)});
       // .then(console.log(getRecoil(selectedDeviceState)))
-  }
+  },
+
+  toggle_device_pin : function (device_id) {
+    var obj = {
+      link: device_link + '/device?' + new URLSearchParams({
+        device_id: device_id,
+        measurement_period_type: 'day',
+      }),
+      object: {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    fetch(obj.link, obj.object)
+      .then(response => response.json())
+      .then(device => {
+        device.pinned = !device.pinned;
+        var obj = {
+          link: device_link + '/device',
+          object: {
+            method: 'PUT',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer ' + getRecoil(authState).token,
+              'Content-type': 'application/json'
+            },
+            body: JSON.stringify(
+              device
+            )
+          }
+        };
+        fetch(obj.link, obj.object).then(() =>  this.get_device_list());
+      });
+  },
 
 }

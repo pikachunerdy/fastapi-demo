@@ -84,6 +84,14 @@ const MapComponent = (args) => {
   </div>;
 }
 
+const deviceListComponentStyles = StyleSheet.create({
+  container_styles : {
+  textAlign : "left",
+  display : 'flex',
+  flexDirection : 'row'
+}});
+
+
 const DeviceListComponent = (args) => {
   const deviceList = useRecoilValue(deviceListState);
 
@@ -99,18 +107,27 @@ const DeviceListComponent = (args) => {
             return <>
               <Card id={device.device_id}>
                 <CardBody>
-                  <Container>
-                    <Row>
-                      <Col>
-                        Device ID: {device.device_id}
+                  <Container fluid="md" className={css(deviceListComponentStyles.container_styles)}>
+                    <Row className="justify-content-md-center">
+                      <Col md="auto">
+                        <CardText>Device ID: {device.device_id}</CardText>
                       </Col>
-                      <Col>
-                        Warning Level: {device.warning_level}
+                      <Col md="auto">
+                        <CardText>Warning Level: {device.warning_level}</CardText>
                       </Col>
-                      <Button>
+                      <Button
+                      variant="secondary"
+                      size="sm"
+                      style={{ marginBottom: "1rem" }}
+                      onClick={() => { device_list_manager.toggle_device_pin(device.device_id); }}
+                      >
                         {device.pinned ? "Pinned" : "Not Pinned"}
                       </Button>
-                      <Button onClick={() => {device_list_manager.select_device(device.device_id);}}>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        style={{ marginBottom: "1rem" }}
+                        onClick={() => { device_list_manager.select_device(device.device_id); }}>
                         View
                       </Button>
                     </Row>
@@ -150,7 +167,7 @@ const HorizontalSplit = props => {
         >
           <div id="mapID">
             <MapComponent></MapComponent>
-            </div>
+          </div>
         </Pane>
         <Pane
           initialSize={bottomHeight}
@@ -177,12 +194,12 @@ const HorizontalSplit = props => {
 const DeviceInfoPanel = (args) => {
   const selectedDevice = useRecoilValue(selectedDeviceState);
   return <>
-  <Card>
-    <CardHeader>DeviceID: {selectedDevice.device_id}</CardHeader>
-    <CardBody>
-      
-    </CardBody>
-  </Card>
+    <Card>
+      <CardHeader>DeviceID: {selectedDevice.device_id}</CardHeader>
+      <CardBody>
+
+      </CardBody>
+    </Card>
   </>
 }
 
@@ -224,9 +241,10 @@ const VerticalSplit = props => {
 
 
 
-const AppStyles = StyleSheet.create({
-
-});
+const appStyles = StyleSheet.create({
+  text_style : {
+  textAlign : "left"
+}});
 
 function App() {
   const navBarStyle = {
@@ -238,7 +256,7 @@ function App() {
   auth_manager.get_auth_key(device_list_manager.get_device_list);
 
   return (
-    <div className={'App'} style={{ height: "100%" }}>
+    <div className={css(appStyles.text_style)} style={{ height: "100%" }}>
       <Navbar style={navBarStyle}>
         <h1>Dashboard</h1>
       </Navbar>

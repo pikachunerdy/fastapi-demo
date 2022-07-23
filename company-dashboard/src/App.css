@@ -6,9 +6,9 @@
 }
 
 
-.App {
+/* .App {
   text-align: center;
-}
+} */
 
 /* .App-logo {
   height: 40vmin;
@@ -94,4 +94,12 @@
 }
 .Resizer.disabled:hover {
   border-color: transparent;
+}
+
+.btn-secondary {
+  background-color: #ff6f79 !important;
+  border-color: #ff6f79 !important;
+  border-radius: 0.2em;
+  margin : 0.1em;
+  padding : 0.2em;
 }
