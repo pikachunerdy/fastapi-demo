@@ -15,6 +15,7 @@
     "react-scripts": "^5.0.1",
     "react-split-pane": "^2.0.3",
     "reactstrap": "^9.1.2",
+    "recharts": "^2.1.13",
     "recoil": "^0.7.3",
     "recoil-nexus": "^0.3.18",
     "web-vitals": "^2.1.4"

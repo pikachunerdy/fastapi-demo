@@ -61,7 +61,7 @@ export var device_list_manager = {
       // .then(console.log(getRecoil(selectedDeviceState)))
   },
 
-  toggle_device_pin : function (device_id) {
+  toggle_device_pin : function (device_id, callback = () => {}) {
     var obj = {
       link: device_link + '/device?' + new URLSearchParams({
         device_id: device_id,
@@ -93,7 +93,7 @@ export var device_list_manager = {
             )
           }
         };
-        fetch(obj.link, obj.object).then(() =>  this.get_device_list());
+        fetch(obj.link, obj.object).then(() =>  {this.get_device_list(); callback();});
       });
   },
 

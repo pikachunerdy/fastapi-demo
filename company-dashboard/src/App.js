@@ -24,7 +24,6 @@ import {
   Form,
   Badge,
   Navbar,
-  Collapse,
   Container,
   Modal, ModalHeader, ModalBody, ModalFooter
 } from "reactstrap";
@@ -33,8 +32,7 @@ import SplitPane from "react-split-pane";
 import Pane from "react-split-pane";
 import MapContainer from './Map';
 import { auth_manager, device_list_manager } from './managers';
-var auth_link = "http://localhost:8000";
-var device_link = "http://localhost:8001";
+import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 
 const blockWidth = 172;
@@ -42,7 +40,7 @@ const blockHeight = 36;
 const foreignObjectSize = 40;
 
 const colors = {
-  pale_red: "#FF6F79",
+  pale_red: "#3487f5",
   white: "#ffffff",
   light_grey: "#b0b0b0",
   light_blue: "#75d1d0",
@@ -85,11 +83,12 @@ const MapComponent = (args) => {
 }
 
 const deviceListComponentStyles = StyleSheet.create({
-  container_styles : {
-  textAlign : "left",
-  display : 'flex',
-  flexDirection : 'row'
-}});
+  container_styles: {
+    textAlign: "left",
+    display: 'flex',
+    flexDirection: 'row'
+  }
+});
 
 
 const DeviceListComponent = (args) => {
@@ -116,10 +115,10 @@ const DeviceListComponent = (args) => {
                         <CardText>Warning Level: {device.warning_level}</CardText>
                       </Col>
                       <Button
-                      variant="secondary"
-                      size="sm"
-                      style={{ marginBottom: "1rem" }}
-                      onClick={() => { device_list_manager.toggle_device_pin(device.device_id); }}
+                        variant="secondary"
+                        size="sm"
+                        style={{ marginBottom: "1rem" }}
+                        onClick={() => { device_list_manager.toggle_device_pin(device.device_id); }}
                       >
                         {device.pinned ? "Pinned" : "Not Pinned"}
                       </Button>
@@ -193,15 +192,47 @@ const HorizontalSplit = props => {
 
 const DeviceInfoPanel = (args) => {
   const selectedDevice = useRecoilValue(selectedDeviceState);
-  return <>
-    <Card>
-      <CardHeader>DeviceID: {selectedDevice.device_id}</CardHeader>
-      <CardBody>
 
-      </CardBody>
-    </Card>
-  </>
+  if (selectedDevice.device_id) {
+    return <>
+      <Card>
+        <CardHeader>DeviceID: {selectedDevice.device_id}</CardHeader>
+        <CardBody>
+          <CardText>
+            Warning Level Height: {selectedDevice.warning_level_height_mm}
+          </CardText>
+          <Button
+            variant="secondary"
+            size="sm"
+            style={{ marginBottom: "1rem" }}
+            onClick={() => { device_list_manager.toggle_device_pin(selectedDevice.device_id, (() => { device_list_manager.select_device(selectedDevice.device_id) })); }}
+          >
+            {selectedDevice.pinned ? "Pinned" : "Not Pinned"}
+          </Button>
+          <CardText>
+            Creation Date: {selectedDevice.creation_date}
+          </CardText>
+          <CardText>
+            Warning Level: {selectedDevice.warning_level}
+          </CardText>
+          <CardText>Comments: </CardText>
+          <Card>
+            {selectedDevice.comments.map(comment => <CardText>comment</CardText>)}
+          </Card>
+          {/* <CanvasJSChart options = {chart_options} ></CanvasJSChart> */}
+          <LineChart width={400} height={400} data={selectedDevice.measurements}>
+            <Line type="monotone" dataKey="distance_mm" stroke="#8884d8" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="time_s" />
+            <YAxis />
+          </LineChart>
+        </CardBody>
+      </Card>
+    </>
+  }
+  return <></>
 }
+
 
 const VerticalSplit = props => {
   const vh =
@@ -242,9 +273,10 @@ const VerticalSplit = props => {
 
 
 const appStyles = StyleSheet.create({
-  text_style : {
-  textAlign : "left"
-}});
+  text_style: {
+    textAlign: "left"
+  }
+});
 
 function App() {
   const navBarStyle = {
@@ -258,7 +290,7 @@ function App() {
   return (
     <div className={css(appStyles.text_style)} style={{ height: "100%" }}>
       <Navbar style={navBarStyle}>
-        <h1>Dashboard</h1>
+        <h1>Manhole Metrics Dashboard</h1>
       </Navbar>
       <VerticalSplit style={{ height: "100%" }}></VerticalSplit>
       {/* <SplitPane split="vertical" defaultSize={200} primary="second">
