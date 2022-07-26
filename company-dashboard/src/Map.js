@@ -16,9 +16,10 @@ export class MapContainer extends Component {
     document.getElementById("mapID").firstChild.firstChild.firstChild.style.height = "0px";    // set el height and width etc.
   };
   render() {
+    console.log(mapStyles);
     mapStyles = {
-      height: getRecoil(panelSizes).hTop,
-      width: getRecoil(panelSizes).vLeft,
+      height: (parseInt(getRecoil(panelSizes).hTop.replace(/px/,""))-40)+"px",
+      width: (parseInt(getRecoil(panelSizes).vLeft.replace(/px/,""))-50)+"px",
     };
     var devices = getRecoil(deviceListState);
     console.log(devices);

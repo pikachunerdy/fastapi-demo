@@ -53,6 +53,69 @@ const sizes = {
   simInfo: 37
 };
 
+const styles = {
+  card_style: {
+    padding: 5,
+    margin: 15,
+    borderRadius: 3,
+    backgroundColor: '#232323',
+    height: '100%'
+  },
+  container_styles: {
+  },
+  header_styles: {
+    marginLeft: 10,
+    padding: 20,
+    margin : 5,
+    width: '100%',
+    color: '#e7eded',
+    fontSize: 25,
+    float: 'left',
+    clear: 'right',
+  },
+  col_styles: {
+    backgroundColor: '#a3e0ff',
+    borderRadius: 10,
+    margin: 5,
+    padding: 10,
+    float: 'left'
+  },
+  row_styles: {
+    backgroundColor: '#074587',
+    borderRadius: 10,
+    margin: 5,
+    padding: 1,
+    float: 'left',
+    width: '98%'
+  },
+  text_style: {
+    paddingTop: 5,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    margin: 5,
+    fontSize : 20,
+    clear: 'left right',
+    color : '#8f979a'
+  },
+  button_styles: {
+    backgroundColor: '#2db4f7',
+    boxShadow: 0,
+    borderRadius: 10,
+    padding: 10,
+    margin: 5,
+    borderColor: '#2db4f7',
+    width: '7em'
+  },
+}
+
+const modified_styles = {
+  unpinned_button_styles: {
+    ...styles.button_styles,
+    backgroundColor: '#6a777d',
+    borderColor: '#6a777d'
+  }
+}
 
 const MapComponent = (args) => {
   const K_WIDTH = 40;
@@ -75,18 +138,41 @@ const MapComponent = (args) => {
     fontWeight: 'bold',
     padding: 4
   };
+  
   var deviceList = useRecoilValue(deviceListState);
-
-  return <div style={{ width: "100%", height: "100%" }}>
-    <MapContainer style={{ width: "100%", height: "100%" }}></MapContainer>
+  var height = (parseInt(getRecoil(panelSizes).hTop.replace(/px/,""))-40)+"px";
+  const mapComponentStyles = StyleSheet.create({
+    card_style: {
+      ...styles.card_style,
+      height : height,
+      width : '97%'
+    }
+  });
+  return <div className={css(mapComponentStyles.card_style)} style={{ width: "100%", height: height}}>
+    <MapContainer style={{ width: "100%", height: height }}></MapContainer>
   </div>;
 }
 
 const deviceListComponentStyles = StyleSheet.create({
+  card_style: {
+    ...styles.card_style
+  },
   container_styles: {
-    textAlign: "left",
-    display: 'flex',
-    flexDirection: 'row'
+  },
+  header_styles: {
+    ...styles.header_styles
+  },
+  col_styles: {
+    ...styles.col_styles
+  },
+  row_styles: {
+    ...styles.row_styles
+  },
+  button_styles: {
+    ...styles.button_styles
+  },
+  unpinned_button_style: {
+    ...modified_styles.unpinned_button_styles,
   }
 });
 
@@ -94,51 +180,53 @@ const deviceListComponentStyles = StyleSheet.create({
 const DeviceListComponent = (args) => {
   const deviceList = useRecoilValue(deviceListState);
 
-  return <>
-    <Card>
-      <CardHeader>
-        Devices
-      </CardHeader>
-      <CardBody>
-        {
-          deviceList.devices.map((device) => {
-            // console.log(device);
-            return <>
-              <Card id={device.device_id}>
-                <CardBody>
-                  <Container fluid="md" className={css(deviceListComponentStyles.container_styles)}>
-                    <Row className="justify-content-md-center">
-                      <Col md="auto">
-                        <CardText>Device ID: {device.device_id}</CardText>
-                      </Col>
-                      <Col md="auto">
-                        <CardText>Warning Level: {device.warning_level}</CardText>
-                      </Col>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        style={{ marginBottom: "1rem" }}
-                        onClick={() => { device_list_manager.toggle_device_pin(device.device_id); }}
-                      >
-                        {device.pinned ? "Pinned" : "Not Pinned"}
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        style={{ marginBottom: "1rem" }}
-                        onClick={() => { device_list_manager.select_device(device.device_id); }}>
-                        View
-                      </Button>
-                    </Row>
-                  </Container>
-                </CardBody>
-              </Card>
-            </>
-          })
-        }
-      </CardBody>
-    </Card>
-  </>
+  return <Card style={{ height: '100%' }}>
+    <CardHeader className={css(deviceListComponentStyles.header_styles)}>
+      <CardText>Devices</CardText>
+    </CardHeader>
+    <CardBody className={css(deviceListComponentStyles.card_style)}>
+      {
+        deviceList.devices.map((device) => {
+          // console.log(device);
+          return <>
+            <Card id={device.device_id}>
+              <CardBody>
+                <Container fluid="md" className={css(deviceListComponentStyles.container_styles)}>
+                  <Row className={css(deviceListComponentStyles.row_styles)} >
+                    <Col xs="3" className={css(deviceListComponentStyles.col_styles)} >
+                      {/* <CardText className={css(deviceListComponentStyles.header_styles)}>Device ID: {device.device_id}</CardText> */}
+                      Device ID: {device.device_id}
+                    </Col>
+                    <Col xs="3" className={css(deviceListComponentStyles.col_styles)} >
+                      {/* <CardText className={css(deviceListComponentStyles.header_styles)}>Warning Level: {device.warning_level}</CardText> */}
+                      Warning Level: {device.warning_level}
+                    </Col>
+                    <Button
+                      className={css(device.pinned ? deviceListComponentStyles.button_styles : deviceListComponentStyles.unpinned_button_style)}
+                      variant="secondary"
+                      size="sm"
+                      style={{ marginBottom: "1rem" }}
+                      onClick={() => { device_list_manager.toggle_device_pin(device.device_id); }}
+                    >
+                      {device.pinned ? "Pinned" : "Not Pinned"}
+                    </Button>
+                    <Button
+                      className={css(deviceListComponentStyles.button_styles)}
+                      variant="secondary"
+                      size="sm"
+                      style={{ marginBottom: "1rem" }}
+                      onClick={() => { device_list_manager.select_device(device.device_id); }}>
+                      View
+                    </Button>
+                  </Row>
+                </Container>
+              </CardBody>
+            </Card>
+          </>
+        })
+      }
+    </CardBody>
+  </Card>
 
 
 }
@@ -190,18 +278,39 @@ const HorizontalSplit = props => {
   );
 };
 
+const deviceInfoPanelStyles = StyleSheet.create({
+  card_style: {
+    ...styles.card_style
+  },
+  container_styles: {
+  },
+  header_styles: {
+    ...styles.header_styles
+  },
+  text_style: {
+    ...styles.text_style
+  },
+  button_styles: {
+    ...styles.button_styles
+  },
+  unpinned_button_style: {
+    ...modified_styles.unpinned_button_styles,
+  }
+});
+
+
 const DeviceInfoPanel = (args) => {
   const selectedDevice = useRecoilValue(selectedDeviceState);
 
   if (selectedDevice.device_id) {
+    var date = new Date(parseInt(selectedDevice.creation_date) * 1000);
+    const dateStr = date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear();
     return <>
       <Card>
-        <CardHeader>DeviceID: {selectedDevice.device_id}</CardHeader>
-        <CardBody>
-          <CardText>
-            Warning Level Height: {selectedDevice.warning_level_height_mm}
-          </CardText>
+        <CardHeader className={css(deviceInfoPanelStyles.header_styles)}><CardText>DeviceID: {selectedDevice.device_id}</CardText></CardHeader>
+        <CardBody className={css(deviceInfoPanelStyles.card_style)}>
           <Button
+            className={css(selectedDevice.pinned ? deviceInfoPanelStyles.button_styles : deviceInfoPanelStyles.unpinned_button_style)}
             variant="secondary"
             size="sm"
             style={{ marginBottom: "1rem" }}
@@ -209,13 +318,16 @@ const DeviceInfoPanel = (args) => {
           >
             {selectedDevice.pinned ? "Pinned" : "Not Pinned"}
           </Button>
-          <CardText>
-            Creation Date: {selectedDevice.creation_date}
+          <CardText className={css(deviceInfoPanelStyles.text_style)}>
+            Warning Level Height: {selectedDevice.warning_level_height_mm}
           </CardText>
-          <CardText>
+          <CardText className={css(deviceInfoPanelStyles.text_style)}>
+            Creation Date: {dateStr}
+          </CardText>
+          <CardText className={css(deviceInfoPanelStyles.text_style)}>
             Warning Level: {selectedDevice.warning_level}
           </CardText>
-          <CardText>Comments: </CardText>
+          <CardText className={css(deviceInfoPanelStyles.text_style)}>Comments: </CardText>
           <Card>
             {selectedDevice.comments.map(comment => <CardText>comment</CardText>)}
           </Card>
@@ -232,7 +344,6 @@ const DeviceInfoPanel = (args) => {
   }
   return <></>
 }
-
 
 const VerticalSplit = props => {
   const vh =
@@ -271,10 +382,23 @@ const VerticalSplit = props => {
 };
 
 
+const DeviceMetricsPage = props => {
+  return <></>
+}
+
+const AccountsPage = props => {
+  return <></>
+}
+
+const FleetMetricsPage = props => {
+  return <></>
+}
+
 
 const appStyles = StyleSheet.create({
-  text_style: {
-    textAlign: "left"
+  app_style: {
+    textAlign: "left",
+    backgroundColor: '#1c1c1c'
   }
 });
 
@@ -288,7 +412,7 @@ function App() {
   auth_manager.get_auth_key(device_list_manager.get_device_list);
 
   return (
-    <div className={css(appStyles.text_style)} style={{ height: "100%" }}>
+    <div className={css(appStyles.app_style)} style={{ height: "100%" }}>
       <Navbar style={navBarStyle}>
         <h1>Manhole Metrics Dashboard</h1>
       </Navbar>

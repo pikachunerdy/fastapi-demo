@@ -93,7 +93,7 @@ export var device_list_manager = {
             )
           }
         };
-        fetch(obj.link, obj.object).then(() =>  {this.get_device_list(); callback();});
+        fetch(obj.link, obj.object).then(() =>  {this.get_device_list(); callback();this.select_device(device_id);});
       });
   },
 
