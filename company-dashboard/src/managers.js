@@ -1,4 +1,4 @@
-import { deviceListState, authState, selectedDeviceState } from './atoms.js';
+import { deviceListState, authState, selectedDeviceState ,accountListState, selectedAccountState} from './atoms.js';
 import { getRecoil, setRecoil } from "recoil-nexus";
 
 
@@ -19,7 +19,7 @@ export var auth_manager = {
         body: 'username=test&password=test'
       }
     }
-    fetch(obj.link, obj.object).then(response => response.json()).then(response => {  setRecoil(authState, { token: response.access_token }); }).then(() => {  callback(); });
+    fetch(obj.link, obj.object).then(response => response.json()).then(response => { setRecoil(authState, { token: response.access_token }); }).then(() => { callback(); });
   }
 };
 
@@ -57,11 +57,11 @@ export var device_list_manager = {
     };
     fetch(obj.link, obj.object)
       .then(response => response.json())
-      .then(data => { setRecoil(selectedDeviceState, data)});
-      // .then(console.log(getRecoil(selectedDeviceState)))
+      .then(data => { setRecoil(selectedDeviceState, data) });
+    // .then(console.log(getRecoil(selectedDeviceState)))
   },
 
-  toggle_device_pin : function (device_id, callback = () => {}) {
+  toggle_device_pin: function (device_id, callback = () => { }) {
     var obj = {
       link: device_link + '/device?' + new URLSearchParams({
         device_id: device_id,
@@ -93,8 +93,116 @@ export var device_list_manager = {
             )
           }
         };
-        fetch(obj.link, obj.object).then(() =>  {this.get_device_list(); callback();this.select_device(device_id);});
+        fetch(obj.link, obj.object).then(() => { this.get_device_list(); callback(); this.select_device(device_id); });
       });
   },
 
+}
+
+export var account_manager = {
+  get_account_list: function () {
+    var obj = {
+      link: auth_link + '/accounts/accounts',
+      object: {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    // console.log(obj);
+    fetch(obj.link, obj.object)
+      .then(response => response.json())
+      .then(data => setRecoil(accountListState, data));
+  },
+
+  create_account : function (email, password, view_devices, register_devices, manage_accounts){
+    const new_account = {
+      email : email,
+      password : password,
+      permissions : {
+        view_devices : view_devices,
+        register_devices : register_devices,
+        manage_devices : view_devices,
+        manage_accounts, manage_accounts,
+        view_device_data : view_devices
+      }
+    }
+    var obj = {
+      link: auth_link + '/accounts/account',
+      object: {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(
+          new_account
+        )
+      }
+    };
+    fetch(obj.link, obj.object).then(() => { this.get_account_list() });
+  },
+
+  select_account : function(account_id) {
+    var obj = {
+      link: auth_link + '/accounts/account/' + account_id,
+      object: {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    fetch(obj.link, obj.object)
+      .then(response => response.json())
+      .then((response) => {console.log(response); return response})
+      .then(data => { setRecoil(selectedAccountState, data) });
+  },
+
+  delete_account : function(account_id) {
+    var obj = {
+      link: auth_link + '/accounts/account/' + account_id,
+      object: {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    fetch(obj.link, obj.object).then(() => this.get_account_list());
+  },
+
+  modify_account : function(account_id, view_devices, register_devices, manage_accounts){
+    const new_account = {
+      id : account_id,
+      permissions : {
+        view_devices : view_devices,
+        register_devices : register_devices,
+        manage_devices : view_devices,
+        manage_accounts, manage_accounts,
+        view_device_data : view_devices
+      }
+    }
+    console.log(new_account);
+    var obj = {
+      link: auth_link + '/accounts/account',
+      object: {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(
+          new_account
+        )
+      }
+    };
+    fetch(obj.link, obj.object).then(() => { this.get_account_list() });
+  }
 }

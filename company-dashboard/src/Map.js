@@ -19,7 +19,7 @@ export class MapContainer extends Component {
     console.log(mapStyles);
     mapStyles = {
       height: (parseInt(getRecoil(panelSizes).hTop.replace(/px/,""))-40)+"px",
-      width: (parseInt(getRecoil(panelSizes).vLeft.replace(/px/,""))-50)+"px",
+      width: (parseInt(getRecoil(panelSizes).vLeft.replace(/px/,""))-60)+"px",
     };
     var devices = getRecoil(deviceListState);
     console.log(devices);

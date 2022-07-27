@@ -29,7 +29,7 @@ async def get_create_user():
         permission.manage_devices  = True
         permission.manage_accounts  = True
         permission.view_device_data = True
-        account.permission = permission
+        account.permissions = permission
         await AccountHandler.create_account(account, 0)
         print('created')
         return

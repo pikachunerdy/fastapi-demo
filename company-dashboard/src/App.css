@@ -103,3 +103,18 @@
   margin : 0.1em;
   padding : 0.2em;
 }
+
+/* .card { 
+  background-color: #1c1c1c;
+} */
+
+/* .modal {
+  position: fixed;
+  left: 5px;
+  width: 98%;
+  right: 5px;
+  max-height: 100%;
+  overflow: auto;
+  overflow-y: scroll;
+  display: block;
+} */

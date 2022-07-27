@@ -18,7 +18,8 @@ echo "Exporting Variables"
 #Application variables 
 export JWT_SECRET=secret
 export ENV=DEV
-export FIRST_START=true
+rm app/api/env.env 2>/dev/null
+echo 'true' > app/api/env.env
 export database_url="postgresql+asyncpg://test:test@localhost:5432/test"
 #export DATABASE_URL=sqlite:///test.sqlite
 
@@ -38,4 +39,5 @@ uvicorn app.api.main:app --reload --port 8000
 echo "----------------------"
 echo "Stopping Containers"
 remove_containers
+rm app/api/env.env 2>/dev/null
 #rm test.sqlite 2> /dev/null

@@ -20,6 +20,7 @@ echo "Exporting Variables"
 #Application variables 
 export JWT_SECRET=secret
 export ENV=DEV
+export FIRST_START=true
 
 
 echo "----------------------"

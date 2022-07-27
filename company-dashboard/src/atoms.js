@@ -3,14 +3,28 @@ import {
 } from 'recoil';
 
 export const deviceListState = atom({
-    key: 'textState', // unique ID (with respect to other atoms/selectors)
+    key: 'deviceListState', // unique ID (with respect to other atoms/selectors)
     default: {
         devices : []
     }, // default value (aka initial value)
 });
 
+export const accountListState = atom({
+    key: 'accountListState', // unique ID (with respect to other atoms/selectors)
+    default: {
+        accounts : []
+    }, // default value (aka initial value)
+});
+
 export const selectedDeviceState = atom({
     key : 'selectedDeviceState',
+    default : {
+
+    },
+});
+
+export const selectedAccountState = atom({
+    key : 'selectedAccountState',
     default : {
 
     },
@@ -27,6 +41,7 @@ export const panelSizes = atom({
     key : 'panelSizes',
     default : {
         hTop : 0,
-        hBottom : 0,
+        vLeft : 0,
+        vRight : 0
     }
 })

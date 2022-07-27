@@ -12,10 +12,19 @@ class AccountInfo(BaseModel):
     id : Optional[str]
     email : str
     company_id : Optional[str]
-    permission : Permissions
+    permissions : Permissions
 
 class Account(AccountInfo):
     password : str
+
+class RegisterAccount(BaseModel):
+    email : str
+    permissions : Permissions
+    password : str
+
+class ModifyAccount(BaseModel):
+    id : str
+    permissions : Permissions
 
 class Accounts(BaseModel):
     accounts : List[AccountInfo]

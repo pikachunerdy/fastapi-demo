@@ -3,18 +3,22 @@ from app.api.configs.configs import Config, environmentSettings
 from starlette.middleware.cors import CORSMiddleware
 import asyncio
 import os
+
 app = FastAPI(    
     title=Config.application_name
 )
 
-# origins = [
-#     "https://dashboard-deploy-h3gpr.ondigitalocean.app/"
-# ]
 
+origins = [
+    "http://localhost",
+    "https://dashboard-deploy-h3gpr.ondigitalocean.app",
+    "http://localhost:3000",
+    "*"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,7 +48,15 @@ async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession
 @app.on_event("startup")
 async def startup():
     if environmentSettings.ENV == "DEV":
-        if os.getenv('FIRST_START') == 'true' or os.getenv('FIRST_START') is None:
+        import os 
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        print(dir_path)
+        with open(dir_path + '/env.env','r') as file:
+            first_load = file.read()
+
+        if first_load != 'false' or first_load is None:
+            with open(dir_path + '/env.env','w') as file:
+                file.write('false')
             import pipes
             print("export FIRST_START=%s" % (pipes.quote('false')))
             await asyncio.sleep(15)
