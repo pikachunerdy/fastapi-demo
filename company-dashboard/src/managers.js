@@ -8,7 +8,7 @@ var device_link = "http://localhost:8001";
 
 
 export var auth_manager = {
-  get_auth_key: function (callback) {
+  get_auth_key: async function (username, password, callback = () => {}) {
     var obj = {
       link: auth_link + '/token',
       object: {
@@ -16,10 +16,47 @@ export var auth_manager = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: 'username=test&password=test'
+        body: 'username='+username + '&password=' + password
       }
     }
-    fetch(obj.link, obj.object).then(response => response.json()).then(response => { setRecoil(authState, { token: response.access_token }); }).then(() => { callback(); });
+    var response = fetch(obj.link, obj.object)
+    if(!response.ok){
+      alert("Invalid Credentials");
+      setRecoil(authState, { token: '', validToken : false, showInvalidCredWarning : true }); 
+      return;
+    }
+    response = response.json()
+    setRecoil(authState, { token: response.access_token, validToken : true, showInvalidCredWarning : false }); 
+    localStorage.setItem('token', response.access_token);
+    callback();
+  }, 
+
+  check_token: function () {
+    const token = localStorage.getItem('token')
+    var obj = {
+      link: auth_link + '/validate_token',
+      object: {
+        method: 'GET',
+        headers: {
+          // 'Accept': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        }
+      }
+    };
+    fetch(obj.link, obj.object)
+      .then(response => {
+        if (!response.ok) {
+          // setRecoil(authState, { token: '', validToken : false })
+        }
+        else{
+          setRecoil(authState, { token: token, validToken : true, showInvalidCredWarning : false });
+        }
+      })
+  },
+
+  logout: function () {
+    localStorage.setItem('token','');
+    setRecoil(authState, { token: '', validToken : false, showInvalidCredWarning : false })
   }
 };
 
@@ -97,6 +134,42 @@ export var device_list_manager = {
       });
   },
 
+  change_device_comments : function(device_id, comments, callback = () => { }){
+    var obj = {
+      link: device_link + '/device?' + new URLSearchParams({
+        device_id: device_id,
+        measurement_period_type: 'day',
+      }),
+      object: {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    fetch(obj.link, obj.object)
+      .then(response => response.json())
+      .then(device => {
+        device.comments = comments;
+        var obj = {
+          link: device_link + '/device',
+          object: {
+            method: 'PUT',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer ' + getRecoil(authState).token,
+              'Content-type': 'application/json'
+            },
+            body: JSON.stringify(
+              device
+            )
+          }
+        };
+        fetch(obj.link, obj.object).then(() => { this.get_device_list(); callback(); this.select_device(device_id); });
+      });
+  }
+
 }
 
 export var account_manager = {
@@ -125,7 +198,7 @@ export var account_manager = {
         view_devices : view_devices,
         register_devices : register_devices,
         manage_devices : view_devices,
-        manage_accounts, manage_accounts,
+        manage_accounts : manage_accounts,
         view_device_data : view_devices
       }
     }
@@ -146,7 +219,7 @@ export var account_manager = {
     fetch(obj.link, obj.object).then(() => { this.get_account_list() });
   },
 
-  select_account : function(account_id) {
+  select_account : function(account_id, callback = () => {}) {
     var obj = {
       link: auth_link + '/accounts/account/' + account_id,
       object: {
@@ -160,7 +233,9 @@ export var account_manager = {
     fetch(obj.link, obj.object)
       .then(response => response.json())
       .then((response) => {console.log(response); return response})
-      .then(data => { setRecoil(selectedAccountState, data) });
+      .then(data => { setRecoil(selectedAccountState, data) })
+      .then(() => console.log(getRecoil(selectedAccountState)))
+      .then(() => callback());
   },
 
   delete_account : function(account_id) {
@@ -184,7 +259,7 @@ export var account_manager = {
         view_devices : view_devices,
         register_devices : register_devices,
         manage_devices : view_devices,
-        manage_accounts, manage_accounts,
+        manage_accounts : manage_accounts,
         view_device_data : view_devices
       }
     }

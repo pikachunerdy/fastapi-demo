@@ -49,7 +49,7 @@ class MongoDevice(Document):
     # any comments made at the point of installation
     installation_comment : str = ''
     # comments made on the device
-    comments : list[str]
+    comments : str
     pinned : bool = False
     decryption_key : str = ''
     sleep_time_s : int = 15*60*60

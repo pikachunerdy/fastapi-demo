@@ -22,7 +22,7 @@ async def create_device():
     device.warning_level = 5
     device.warning_level_height_mm  = 50
     device.installation_comment = ''
-    device.comments = []
+    device.comments = ''
     device.pinned = False
     await device.save()
     print('saved')
@@ -45,7 +45,7 @@ async def create_device():
     device.warning_level = 5
     device.warning_level_height_mm  = 50
     device.installation_comment = ''
-    device.comments = []
+    device.comments = ''
     device.pinned = False
     await device.save()
     print('saved')

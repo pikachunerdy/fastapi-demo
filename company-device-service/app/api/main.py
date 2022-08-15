@@ -35,14 +35,20 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def app_init():
-   client = motor.motor_asyncio.AsyncIOMotorClient(environmentSettings.mongo_database_url)
-   await init_beanie(database=client.db_name, document_models=[MongoDevice])
-   if os.getenv('FIRST_START') == 'true' or os.getenv('FIRST_START') is None:
-        import pipes
-        print("export FIRST_START=%s" % (pipes.quote('false')))
-        await asyncio.sleep(15)
-        from app.api.routes.test_routes import create_device
-        await create_device()
+    client = motor.motor_asyncio.AsyncIOMotorClient(environmentSettings.mongo_database_url)
+    await init_beanie(database=client.db_name, document_models=[MongoDevice])
+    if environmentSettings.ENV == "DEV":
+        import os 
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        with open(dir_path + '/env.env','r') as file:
+            first_load = file.read()
+
+        if first_load != 'false' or first_load is None:
+            with open(dir_path + '/env.env','w') as file:
+                file.write('false')
+            await asyncio.sleep(15)
+            from app.api.routes.test_routes import create_device
+            await create_device()
 
 
 # broker = Broker(brokerConfig.url)

@@ -16,7 +16,8 @@ class Device(BaseModel):
     latitude : float
     longitude : float 
     warning_level_height_mm : int
-    comments : list[str] = []
+    # comments : list[str] = []
+    comments : str = ''
     pinned : bool
     
 

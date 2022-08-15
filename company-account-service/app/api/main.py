@@ -50,7 +50,6 @@ async def startup():
     if environmentSettings.ENV == "DEV":
         import os 
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        print(dir_path)
         with open(dir_path + '/env.env','r') as file:
             first_load = file.read()
 
@@ -58,7 +57,6 @@ async def startup():
             with open(dir_path + '/env.env','w') as file:
                 file.write('false')
             import pipes
-            print("export FIRST_START=%s" % (pipes.quote('false')))
             await asyncio.sleep(15)
             async with engine.begin() as conn:
                 await conn.run_sync(metadata.drop_all)

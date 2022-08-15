@@ -26,14 +26,16 @@ export const selectedDeviceState = atom({
 export const selectedAccountState = atom({
     key : 'selectedAccountState',
     default : {
-
+        id : null
     },
 });
 
 export const authState = atom({
     key : 'authState',
     default : {
-        token : ''
+        token : '',
+        validToken : false,
+        showInvalidCredWarning : false,
     }
 });
 

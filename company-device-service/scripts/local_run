@@ -20,7 +20,8 @@ echo "Exporting Variables"
 #Application variables 
 export JWT_SECRET=secret
 export ENV=DEV
-export FIRST_START=true
+rm app/api/env.env 2>/dev/null
+echo 'true' > app/api/env.env
 
 
 echo "----------------------"
@@ -40,3 +41,5 @@ rm -r ./schemas 2> /dev/null
 echo "----------------------"
 echo "Stopping Containers"
 remove_containers
+
+rm app/api/env.env 2>/dev/null

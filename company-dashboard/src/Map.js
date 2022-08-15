@@ -40,7 +40,6 @@ export class MapContainer extends Component {
           console.log(device);
           return (<Marker position={{lat : device.latitude, lng : device.longitude}} onClick={() => device_list_manager.select_device(device.device_id)}/>)
         })}
-
       </Map>
     );
   }

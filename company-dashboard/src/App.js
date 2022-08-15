@@ -26,19 +26,14 @@ import {
   Badge,
   Navbar,
   Container,
-  Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input
+  Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input, TextArea
 } from "reactstrap";
-import React, { useState, memo, useEffect, Component } from "react";
+import React, { useState, memo, useEffect, Component, useRef } from "react";
 import SplitPane from "react-split-pane";
 import Pane from "react-split-pane";
 import MapContainer from './Map';
 import { auth_manager, device_list_manager, account_manager } from './managers';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
-
-
-// const blockWidth = 172;
-// const blockHeight = 36;
-// const foreignObjectSize = 40;
 
 const colors = {
   pale_red: "#3487f5",
@@ -63,8 +58,8 @@ const styles = {
     // borderColor : '#232223',
     // backgroundColor: '#232323',
     height: '100%',
-    backgroundColor : '#1c1c1c',
-    borderColor : '#1c1c1c',
+    backgroundColor: '#1c1c1c',
+    borderColor: '#1c1c1c',
   },
   container_styles: {
   },
@@ -77,8 +72,10 @@ const styles = {
     fontSize: 25,
     float: 'left',
     clear: 'right',
-    backgroundColor : '#232223',
-    borderColor : '#232223',
+    backgroundColor: '#232223',
+    borderColor: '#232223',
+    display: 'flex'
+
   },
   col_styles: {
     backgroundColor: '#a3e0ff',
@@ -96,7 +93,7 @@ const styles = {
     width: '100%',
     // borderColor : '#f5f5f5',
     // borderWidth : 2,
-    border:'1px solid #999999',
+    border: '1px solid #999999',
   },
   text_style: {
     paddingTop: 5,
@@ -116,7 +113,7 @@ const styles = {
     margin: 5,
     borderColor: '#2db4f7',
     width: '7em'
-  },
+  }
 }
 
 const modified_styles = {
@@ -166,64 +163,99 @@ const MapComponent = (args) => {
 const deviceListComponentStyles = StyleSheet.create({
   card_style: {
     ...styles.card_style,
-    backgroundColor : '#1c1c1c',
-    borderColor : '#1c1c1c',
-    paddingTop : 0,
-    marginTop : 0
+    backgroundColor: '#1c1c1c',
+    borderColor: '#1c1c1c',
+    paddingTop: 0,
+    marginTop: 0,
+    overflow: 'scroll'
   },
   card_body_style: {
     ...styles.card_style,
-    backgroundColor : '#232223',
-    borderColor : '#232223',
-    paddingTop : 0,
-    marginTop : 0,
-    marginLeft : 0,
-    paddingLeft : 10,
-    paddingRight : 0
+    backgroundColor: '#232223',
+    borderColor: '#232223',
+    paddingTop: 0,
+    marginTop: 0,
+    marginLeft: 0,
+    paddingLeft: 10,
+    paddingRight: 0,
+    overflow: 'scroll'
 
   },
   container_styles: {
   },
-  header_styles: {
-    ...styles.header_styles,
-    backgroundColor : '#1c1c1c',
-    borderColor : '#1c1c1c',
-    paddingTop : 0,
-    marginTop : 0,
-    marginBottom : 0,
-    paddingBottom : 10,
-  },
   col_styles: {
     ...styles.col_styles,
-    minWidth : 'fit-content'
+    minWidth: 'fit-content'
   },
   row_styles: {
     ...styles.row_styles,
-    marginLeft : 0,
-    marginRight : 0
+    marginLeft: 0,
+    marginRight: 0
   },
   button_styles: {
     ...styles.button_styles
   },
+  filter_button_styles: {
+    ...styles.button_styles,
+    width: '10em',
+    paddingTop: 4,
+    paddingBottom: 4,
+    float: 'right'
+  },
+  disabled_filter_style: {
+    ...modified_styles.unpinned_button_styles,
+    width: '10em',
+    paddingTop: 4,
+    paddingBottom: 4,
+    float: 'right'
+  },
   unpinned_button_style: {
     ...modified_styles.unpinned_button_styles,
-  }
+  },
+  search_style: {
+    marginLeft: 10,
+    marginTop: 5,
+    height: '2em',
+    width: '20em',
+    float: 'right'
+  },
+  header_text_style: {
+    margin: 0,
+    padding: 0
+  },
+  header_styles: {
+    ...styles.header_styles,
+    backgroundColor: '#1c1c1c',
+    borderColor: '#1c1c1c',
+    paddingTop: 0,
+    marginTop: 0,
+    marginBottom: 0,
+    paddingBottom: 10,
+    marginLeft: 0,
+    paddingLeft: 0
+  },
 });
-
 
 const DeviceListComponent = (args) => {
   const deviceList = useRecoilValue(deviceListState);
-
+  const [deviceSearchText, setDeviceSearchText] = useState('');
+  const [filterPinned, setFilterPinned] = useState(false);
   return <Card className={css(deviceListComponentStyles.card_style)} style={{ height: '100%' }}>
     <CardHeader className={css(deviceListComponentStyles.header_styles)}>
-      <CardText>Devices</CardText>
+      <CardText className={css(deviceListComponentStyles.header_text_style)}>Devices</CardText>
+      <Input className={css(deviceListComponentStyles.search_style)} placeholder="Search Devices"
+        value={deviceSearchText} onChange={(event) => setDeviceSearchText(event.target.value)} ></Input>
+      <Button className={css(filterPinned ? deviceListComponentStyles.filter_button_styles : deviceListComponentStyles.disabled_filter_style)}
+        onClick={() => setFilterPinned(!filterPinned)}>Filter Pinned</Button>
     </CardHeader>
     <CardBody className={css(deviceListComponentStyles.card_body_style)}>
       {
-        deviceList.devices.map((device) => {
-          // console.log(device);
-          return <>
-            {/* <Card id={device.device_id}> */}
+        deviceList.devices.filter(device => device.device_id.toLowerCase().includes(deviceSearchText.toLowerCase()))
+          .filter(device => device.pinned || !filterPinned)
+          .map((device) => {
+            // console.log(device);
+            return <>
+              {/* <Card id={device.device_id}> */}
               <CardBody>
                 <Container fluid="md" className={css(deviceListComponentStyles.container_styles)}>
                   <Row className={css(deviceListComponentStyles.row_styles)} >
@@ -255,9 +287,9 @@ const DeviceListComponent = (args) => {
                   </Row>
                 </Container>
               </CardBody>
-            {/* </Card> */}
-          </>
-        })
+              {/* </Card> */}
+            </>
+          })
       }
     </CardBody>
   </Card>
@@ -315,34 +347,43 @@ const HorizontalSplit = props => {
 const deviceInfoPanelStyles = StyleSheet.create({
   card_style: {
     ...styles.card_style,
-    backgroundColor : '#232223',
-    borderColor : '#232223',
+    backgroundColor: '#232223',
+    borderColor: '#232223',
+    overflowY: "scroll",
+    height: '100%'
   },
   card_body_style: {
     ...styles.card_style,
-    backgroundColor : '#232223',
-    borderColor : '#232223',
-    paddingTop : 0,
-    marginTop : 0,
-    paddingLeft : 0,
-    paddingRight : 0
-
+    backgroundColor: '#232223',
+    borderColor: '#232223',
+    paddingTop: 0,
+    marginTop: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    overflowY: "scroll",
+    height: '100%'
   },
   container_styles: {
+    overflowY: "scroll"
   },
   header_styles: {
     ...styles.header_styles
   },
   row_styles: {
     ...styles.row_styles,
-    marginLeft : 0,
-    marginRight : 0
+    marginLeft: 0,
+    marginRight: 0
   },
   text_style: {
     ...styles.text_style
   },
   button_styles: {
     ...styles.button_styles,
+  },
+  comment_button_styles: {
+    ...styles.button_styles,
+    display: 'block',
+    clear: 'right'
   },
   unpinned_button_styles: {
     ...modified_styles.unpinned_button_styles,
@@ -361,15 +402,54 @@ const deviceInfoPanelStyles = StyleSheet.create({
     borderRadius: 3,
     padding: 3,
     margin: 5,
-    width: '4em'
+    width: '4em',
+    marginBottom: 10,
+  },
+  chart_style: {
+    margin: 0,
+    padding: 0,
+    paddingLeft: -10,
+  },
+  comments_style: {
+    backgroundColor: '#232223',
+    borderColor: '#999999',
+    borderWidth: 2,
+    marginLeft: 5,
+    borderRadius: 6,
+    width: '30em',
+    color: '#999999',
+    marginBottom: 10,
+    padding : 5,
+    // height: 40,
+    maxHeight : 300
   }
 });
-
 
 const DeviceInfoPanel = (args) => {
   const selectedDevice = useRecoilValue(selectedDeviceState);
   const panel = useRecoilValue(panelSizes);
-  const width = parseInt(panel.vRight, 10) - 60;
+  const [commentChanges, setCommentChanged] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const width = parseInt(panel.vRight, 10) - 70;
+  const [deviceID, setDeviceID] = useState('');
+  if(!(deviceID === selectedDevice.device_id)){
+    setDeviceID(selectedDevice.device_id);
+    setCommentText(selectedDevice.comments);
+    setCommentChanged(false);
+  }
+
+  const text_area = useRef(null);
+  
+  <textarea id='commentTextAreaBlockInfo' className={css(deviceInfoPanelStyles.comments_style)} value={commentText} onChange={(event) => { setCommentChanged(!(event.target.value === selectedDevice.comments)); setCommentText(event.target.value); }} ></textarea>;
+
+  useEffect(() => {   
+    if(text_area.current != null){
+      console.log(text_area.current.scrollHeight);
+      text_area.current.style.height = "";
+      text_area.current.style.height = text_area.current.scrollHeight  + 'px';
+      console.log(text_area.current.style);
+    }
+  });
 
   const changePeriodType = (periodType) => {
     device_list_manager.select_device(selectedDevice.device_id, periodType);
@@ -403,13 +483,29 @@ const DeviceInfoPanel = (args) => {
           <CardText className={css(deviceInfoPanelStyles.text_style)}>
             Warning Level: {selectedDevice.warning_level}
           </CardText>
+
           <CardText className={css(deviceInfoPanelStyles.text_style)}>Comments: </CardText>
           {/* comments */}
+          <textarea id='commentTextAreaBlockInfo' className={css(deviceInfoPanelStyles.comments_style)} value={commentText} onChange={(event) => { setCommentChanged(!(event.target.value === selectedDevice.comments)); setCommentText(event.target.value); }} ref={text_area}></textarea>
+          {commentChanges ? <Button className={css(deviceInfoPanelStyles.comment_button_styles)}
+            onClick={() => {
+              device_list_manager.change_device_comments(selectedDevice.device_id, commentText);
+              setCommentChanged(false);
+            }}>
+            Save
+          </Button> : <></>}
           {/* <Card>
             {selectedDevice.comments.map(comment => <CardText>comment</CardText>)}
           </Card> */}
           {/* <CanvasJSChart options = {chart_options} ></CanvasJSChart> */}
-          <Row className={css(deviceInfoPanelStyles.text_style)}> 
+          <LineChart className={css(deviceInfoPanelStyles.chart_style)} width={width} height={400} data={selectedDevice.measurements}>
+            <Line type="monotone" dataKey="distance_mm" stroke="#8884d8" />
+            <CartesianGrid stroke="#ccc" />
+            <XAxis dataKey="time_s" />
+            <YAxis label={{ value: 'Height (mm)', angle: -90, position: 'insideLeft', fill: '#6a6f71' }} />
+            <Tooltip />
+          </LineChart>
+          <Row className={css(deviceInfoPanelStyles.text_style)}>
             {[['day', 'Day'], ['week', 'Week'], ['month', 'Month'], ['year', 'Year']].map(([key, label]) => {
               return <Button className={css(selectedDevice.measurement_period_type === key ?
                 deviceInfoPanelStyles.selected_switch_button_styles : deviceInfoPanelStyles.switch_button_styles)}
@@ -418,13 +514,6 @@ const DeviceInfoPanel = (args) => {
               </Button>
             })}
           </Row>
-          <LineChart width={width} height={400} data={selectedDevice.measurements}>
-            <Line type="monotone" dataKey="distance_mm" stroke="#8884d8" />
-            <CartesianGrid stroke="#ccc" />
-            <XAxis dataKey="time_s" />
-            <YAxis />
-            <Tooltip />
-          </LineChart>
         </CardBody>
       </Card>
     </>
@@ -438,8 +527,8 @@ const VerticalSplit = props => {
     Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) -
     sizes.header;
   const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-  const [leftWidth, setLeftWidth] = useState(parseInt(vw * 0.7).toString() + "px");
-  const [rightWidth, setRightWidth] = useState(parseInt(vw * 0.3).toString() + "px");
+  const [leftWidth, setLeftWidth] = useState(parseInt(vw * 0.6).toString() + "px");
+  const [rightWidth, setRightWidth] = useState(parseInt(vw * 0.4).toString() + "px");
 
   const onChange = size => {
     setLeftWidth(size[0]);
@@ -459,9 +548,9 @@ const VerticalSplit = props => {
             <HorizontalSplit style={{ maxHeight: vh, height: vh }}></HorizontalSplit>
           </div>
         </Pane>
-        <Pane minSize="10%" maxSize="90%">
-          <div style={{ overflowY: "scroll" }}>
-            <DeviceInfoPanel></DeviceInfoPanel>
+        <Pane minSize="10%" maxSize="90%" style={{ overflowY: "scroll", height: '100%' }}>
+          <div style={{ overflowY: "scroll", height: '100%' }}>
+            <DeviceInfoPanel style={{ overflowY: "scroll", height: '100%' }}></DeviceInfoPanel>
           </div>
         </Pane>
       </SplitPane>
@@ -469,9 +558,8 @@ const VerticalSplit = props => {
   );
 };
 
-
 const DeviceMetricsPage = props => {
-  return <VerticalSplit  style={{ height: "100%" }}></VerticalSplit>
+  return <VerticalSplit style={{ height: "100%" }}></VerticalSplit>
 }
 
 const accountsPageStyle = StyleSheet.create({
@@ -504,18 +592,32 @@ const accountsPageStyle = StyleSheet.create({
     minWidth: '40em',
     height: '3em',
     fontSize: 18,
-    width: 'fit-content',
+    width: '40em',
+    marginLeft: 0,
+    marginRight: 0,
+    background: '#2d2d2d',
+    borderColor: '#b6b6b6',
     marginBottom: 20,
+    textAlign: 'left',
   },
   search_style: {
-    width: '20em',
+    width: '45em',
+    paddingRight: '10em',
+    paddingLeft: '0em',
+    marginLeft: '0em',
+    marginRight: '0em',
     marginBottom: 30
   },
   delete_button_style: {
     backgroundColor: "#ff4545",
-    borderColor: "#ff4545"
-  }
+    borderColor: "#ff4545",
+    marginTop : 15,
+  },
+  submit_button_style : {
+    marginTop : 10,
+  },
 });
+
 const AccountsPage = props => {
   const accountList = useRecoilValue(accountListState);
   const selectedAccount = useRecoilValue(selectedAccountState)
@@ -606,6 +708,7 @@ const AccountsPage = props => {
         <ModalHeader toggle={() => { setModifyAccountModal(!modifyAccountModal) }}>Modify Account</ModalHeader>
         <ModalBody>
           <CardText>{selectedAccount.email}</CardText>
+          {/* submit */}
           <Form onSubmit={onFormSubmitModifyAccount}>
             <legend>Change Permissions</legend>
             <FormGroup check>
@@ -634,8 +737,9 @@ const AccountsPage = props => {
                 Manage Accounts
               </Label>
             </FormGroup>
-            <Button type="submit">Submit</Button>
+            <Button type="submit" className={css(accountsPageStyle.submit_button_style)}>Submit</Button>
           </Form>
+          {/* delete */}
           <Button className={css(accountsPageStyle.delete_button_style)}
             onClick={() => { account_manager.delete_account(selectedAccount.id); setModifyAccountModal(false) }}>
             Delete Account
@@ -656,7 +760,7 @@ const AccountsPage = props => {
           return <>
             <Row className={css(accountsPageStyle.row_style)}>
               <Button className={css(accountsPageStyle.account_button_style)}
-                onClick={() => { account_manager.select_account(account.id); setModifyAccountModal(true); }}>{account.email}</Button>
+                onClick={() => { account_manager.select_account(account.id, () => {setModifyAccountModal(true);});}}>{account.email}</Button>
             </Row>
           </>
         })
@@ -665,36 +769,176 @@ const AccountsPage = props => {
   </>
 }
 
-const FleetMetricsPage = props => {
-  return <></>
-}
+const login_page_styles = StyleSheet.create({
+  form_styles: {
+    display: 'inline-block',
+    paddingTop: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%'
+  },
+  form_items: {
+    clear: 'right',
+    width: '20em',
+    margin: 'auto',
+    marginBottom: 10
+  },
+  form_button: {
+    clear: 'right',
+    width: '20em',
+    margin: 'auto',
+    display: 'inline-block'
+  },
+  row_style: {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%'
+  },
+  create_new_style: {
+    backgroundColor: '#2db4f7',
+    boxShadow: 0,
+    borderRadius: 10,
+    padding: 10,
+    paddingRight: 0,
+    paddingLeft: 0,
+    marginLeft: 25,
+    borderColor: '#2db4f7',
+    marginTop: 50,
+    marginBottom: 20,
+    width: '20em'
+  },
+  invalid_credentials_style: {
+    textAlign: 'center',
+    clear: 'right',
+    width: '20em',
+    margin: 'auto',
+    display: 'inline-block',
+    color:'#e35f5f',
+  },
 
+});
+
+const LoginPage = props => {
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const auth = useRecoilValue(authState);
+
+
+
+
+  return <>
+    <Form className={css(login_page_styles.form_styles)} >
+      <FormGroup>
+        <Input className={css(login_page_styles.form_items)} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="email"></Input>
+        <Input className={css(login_page_styles.form_items)} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="password"></Input>
+      </FormGroup>
+      <Row className={css(login_page_styles.row_style)}>
+      {auth.showInvalidCredWarning ? <>
+      <p className={css(login_page_styles.invalid_credentials_style)}>Invalid Credentials</p>
+    </> : <></>}
+    </Row>
+      <Row className={css(login_page_styles.row_style)}>
+        <Button className={css(login_page_styles.create_new_style)} onClick={() => {
+          auth_manager.get_auth_key(email, password, () => {
+            device_list_manager.get_device_list(); account_manager.get_account_list()
+          });
+        }}>Login</Button>
+      </Row>
+      {/* <Button className={css(login_page_styles.form_button)} type="submit">Submit</Button> */}
+    </Form>
+  </>
+}
 
 const appStyles = StyleSheet.create({
   app_style: {
     textAlign: "left",
     backgroundColor: '#1c1c1c'
-  }
-});
-
-function App() {
-  const navBarStyle = {
+  },
+  nav_button_styles: {
+    display: 'inline-block',
+    float: 'right',
+    borderColor: '#aad8e2',
+    paddingTop: 0,
+    paddingBottom: 0,
+    marginLeft: 10,
+    height: 40,
+    marginTop: 5
+  },
+  nav_header_styles: {
+    marginRight: 20,
+    marginLeft: 10
+  },
+  nav_bar_styles: {
+    justifyContent: 'left',
+    alignItems: 'left',
+    display: 'flex',
     height: sizes.header,
     background: colors.pale_red,
     margin: 0,
-  };
+    paddingTop: 5,
+  },
 
-  auth_manager.get_auth_key(() => { device_list_manager.get_device_list(); account_manager.get_account_list() });
+  logout_button: {
+    display: 'inline-block',
+    float: 'right',
+    borderColor: '#aad8e2',
+    paddingTop: 0,
+    paddingBottom: 0,
+    marginLeft: 10,
+    height: 40,
+    marginTop: 5
+  },
+});
+
+function App() {
+  const [navState, setNavState] = useState('device-metrics');
+  const auth = useRecoilValue(authState);
+
+  if (!auth.validToken) {
+    auth_manager.check_token();
+  }
+  else{
+    device_list_manager.get_device_list(); 
+    account_manager.get_account_list();
+  }
+
+  var page = <></>;
+
+  switch (navState) {
+    case 'device-metrics':
+      page = <DeviceMetricsPage style={{ height: "100%" }}></DeviceMetricsPage>;
+      break;
+    case 'accounts-page':
+      page = <AccountsPage style={{ height: "100%" }}></AccountsPage>;
+      break;
+  }
+  if (!auth.validToken) {
+    return (
+      <div className={css(appStyles.app_style)} style={{ height: "100vh" }}>
+        <div className={css(appStyles.nav_bar_styles)}>
+          <h1 className={css(appStyles.nav_header_styles)}>Manhole Metrics Dashboard</h1>
+        </div>
+        <LoginPage></LoginPage>
+      </div>
+    )
+  }
+
+  const vh =
+    Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) -
+    sizes.header;
+  const pageHeight = ((parseInt(vh) - sizes.header).toString() + "px");
 
   return (
     <div className={css(appStyles.app_style)} style={{ height: "100vh" }}>
-      <Navbar style={navBarStyle}>
-        <h1>Manhole Metrics Dashboard</h1>
-      </Navbar>
-      <DeviceMetricsPage style={{ height: "100%" }}></DeviceMetricsPage>
-      {/* <AccountsPage style={{ height: "100%" }}></AccountsPage> */}
+      <div className={css(appStyles.nav_bar_styles)}>
+        <h1 className={css(appStyles.nav_header_styles)}>Manhole Metrics Dashboard</h1>
+        <Button className={css(appStyles.nav_button_styles)} onClick={() => setNavState('device-metrics')}>Device Metrics Page</Button>
+        <Button className={css(appStyles.nav_button_styles)} onClick={() => setNavState('accounts-page')}>Accounts Page</Button>
+        <Button className={css(appStyles.logout_button)} onClick={() => auth_manager.logout()}>Logout</Button>
+      </div>
+      <div style={{ height: pageHeight }}>{page}</div>
     </div>
-
   );
 }
 
