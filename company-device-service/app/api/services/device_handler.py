@@ -87,7 +87,6 @@ class DeviceHandler:
         return mongo_device_to_device_data(self._mongo_device, measurement_period_type)
 
     async def modify(self, new_device : Device) -> DeviceInfo:
-        print(new_device)
         self._mongo_device.comments = new_device.comments
         self._mongo_device.warning_level_height_mm = new_device.warning_level_height_mm
         self._mongo_device.pinned = new_device.pinned
