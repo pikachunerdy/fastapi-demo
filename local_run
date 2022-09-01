@@ -1,6 +1,0 @@
-#! /bin/bash
-cd ./company-account-service/
-sudo ./scripts/local_run &
-cd ../
-cd ./company-device-service/
-sudo ./scripts/local_run

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export ENV=DEV
+python3 test/test.py
+python3 main.py

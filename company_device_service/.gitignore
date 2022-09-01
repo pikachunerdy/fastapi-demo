@@ -1,0 +1,4 @@
+*.pyc
+**/schemas
+**/env
+env.env

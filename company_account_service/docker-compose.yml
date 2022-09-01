@@ -1,0 +1,13 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  company-account-service:
+    build :
+      context: ..
+      dockerfile: company-account-service/Dockerfile
+    ports:
+      - "8000:8080"
+    environment:
+      ENV: DEV
+      database_url : "postgresql+asyncpg://test:test@localhost:5432/test"
+  postgres:
+   image: postgres:latest
