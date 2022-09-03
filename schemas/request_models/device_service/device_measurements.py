@@ -6,6 +6,6 @@ class Measurements(BaseModel):
     time_s : List[int]
     distance_mm : List[int]
 
-class Payload(BaseModel):
+class DeviceServerMessage(BaseModel):
     measurements : Measurements
     device_id : int

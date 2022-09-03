@@ -1,0 +1,22 @@
+#!/bin/bash
+service_name="company-mqtt-service"
+
+export PYTHONPATH=$PYTHONPATH:../
+export ENV=DEV
+
+start_containers(){
+   sudo docker run -it --name mosquitto -p 2883:1883  -p 9001:9001  -d -v $(pwd)/mosquitto:/mosquitto/  eclipse-mosquitto:latest
+}
+
+remove_containers(){
+    docker stop  mosquitto 2> /dev/null
+    docker rm --volumes  mosquitto 2> /dev/null
+}
+
+remove_containers
+#Start Containers
+start_containers
+
+python3 main.py
+
+remove_containers

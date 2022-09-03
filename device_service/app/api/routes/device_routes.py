@@ -5,12 +5,12 @@ from app.api.main import app
 from schemas.mongo_models.device_models import MongoDevice, MongoDeviceDataEntry
 from fastapi import Body
 from app.api.tasks.update_average_measurements import process_average_measurements_task
-from schemas.request_models.device_service.device_measurements import Payload
+from schemas.request_models.device_service.device_measurements import DeviceServerMessage
 from schemas.request_models.device_service.device_settings import Settings
 
 
 @app.post('/measurements', response_model=Settings, tags=["Measurements"])
-async def post_measurements(message : Payload = Body(...)) -> Settings:
+async def post_measurements(message : DeviceServerMessage = Body(...)) -> Settings:
     '''Receive device measurements'''
     # print(message)
     mongo_device = await MongoDevice.find(MongoDevice.device_id == message.device_id).first_or_none()

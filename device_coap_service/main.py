@@ -4,8 +4,9 @@ import asyncio
 
 import aiocoap.resource as resource
 import aiocoap
+from schemas.encodings.device_server_encoding import DeviceServerEncoding
 
-from schemas.request_models.device_service.device_measurements import Payload, Measurements
+from schemas.request_models.device_service.device_measurements import DeviceServerMessage, Measurements
 from schemas.request_models.device_service.device_settings import Settings
 from libs.byte_encoder.encoder import TemplateBase, Encoder
 from configs.configs import environmentSettings
@@ -21,34 +22,6 @@ class Update(resource.Resource):
         # TODO design
         # message = json.loads(request.payload)
         return aiocoap.Message(payload='')
-
-
-class MeasurementEncoding(TemplateBase):
-    time = (int, 4)
-    distance = (int, 2)
-
-
-class DeviceServerEncoding(TemplateBase):
-    '''
-    The received messages should be of the form
-    0-1: 1 byte: Start of message = 0
-    1-2: 1 byte: sum of all the bytes
-    2-6: 4 byte: Device ID
-    6-8: 2 byte: Num reading
-    8-8+6*num_readings
-    For each reading
-        4 bytes time, 2 bytes distance
-    '''
-    device_id = (int,4)
-    measurements = (list,MeasurementEncoding)
-
-class ServerDeviceEncoding(TemplateBase):
-    message_wait_time = (int,2)
-    measurement_sleep_time = (int,2)
-    warning_distance = (int,2)
-    warning_message_wait_time = (int,2)
-    warning_measurement_sleep_time = (int,2)
-
 
 class MeasurementsHandler(resource.Resource):
 
@@ -73,61 +46,28 @@ class MeasurementsHandler(resource.Resource):
     '''
 
     @staticmethod
-    def decode_measurement(payload_bytes : bytes) -> Payload:
-        # payload = Payload.construct()
-        # payload.measurements = Measurements.construct()
-        # payload.measurements.time_s = []
-        # payload.measurements.distance_mm = []
+    def decode_measurement(payload_bytes : bytes) -> DeviceServerMessage:
 
-        # if payload_bytes[0] != 0:
-        #     raise Exception
-
-        # payload_hash = int(payload_bytes[1])
-        # current_hash = 0
-        # for byte in payload_bytes[2:]:
-        #     current_hash += byte
-        # current_hash = int(current_hash & 255)
-
-        # if current_hash != payload_hash:
-        #     print('bad hash', current_hash, payload_hash)
-        #     raise Exception
-
-        # payload.device_id = int.from_bytes(payload_bytes[2:6],'little', signed=False)
-        # print(payload.device_id)
-        # num_measurements = int.from_bytes(payload_bytes[6:8],'little', signed=False)
-        # print(num_measurements)
-
-        # for i in range(num_measurements):
-        #     time_bytes = payload_bytes[8+i*6: 8+i*6+4]
-        #     distance_bytes = payload_bytes[8+i*6+4: 8+i*6+6]
-        #     print(time_bytes)
-        #     print(distance_bytes)
-        #     payload.measurements.time_s.append(int.from_bytes(time_bytes,'little', signed=False))
-        #     payload.measurements.distance_mm.append(int.from_bytes(distance_bytes,'little', signed=False))
-
-        payload = Payload.construct()
+        device_server_message = DeviceServerMessage.construct()
         encoder = Encoder(DeviceServerEncoding)
         device_server_encoding : DeviceServerEncoding = encoder.decode_bytes(payload_bytes)
-        payload.device_id = device_server_encoding.device_id
-        payload.measurements = Measurements.construct()
-        payload.measurements.time_s = []
-        payload.measurements.distance_mm = []
+        device_server_message.device_id = device_server_encoding.device_id
+        device_server_message.measurements = Measurements.construct()
+        device_server_message.measurements.time_s = []
+        device_server_message.measurements.distance_mm = []
         # print(device_server_encoding.measurements)
         for measurement in device_server_encoding.measurements:
-            payload.measurements.time_s.append(measurement.time)
-            payload.measurements.distance_mm.append(measurement.distance)
+            device_server_message.measurements.time_s.append(measurement.time)
+            device_server_message.measurements.distance_mm.append(measurement.distance)
         # print(payload)
-        return payload
+        return device_server_message
 
     async def render_post(self, request):
-        print('POST Message')
         try:
-            payload = MeasurementsHandler.decode_measurement(request.payload)
+            device_server_message = MeasurementsHandler.decode_measurement(request.payload)
         except:
             return aiocoap.Message(payload=bytes(''))
-        print('Testing')
-        response = requests.post(environmentSettings.measurements_api, data=payload.json())
-        print('Received Message')
+        response = requests.post(environmentSettings.measurements_api, data=device_server_message.json())
         return aiocoap.Message(payload=bytes('hello','utf8'))
 
 async def main():
