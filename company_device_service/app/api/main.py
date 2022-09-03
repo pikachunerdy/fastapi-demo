@@ -8,6 +8,7 @@ from beanie import init_beanie
 from celery import Celery
 from app.api.configs.configs import Config, environmentSettings
 from schemas.mongo_models.device_models import MongoDevice
+from fastapi.responses import RedirectResponse
 
 celery = Celery(__name__)
 celery.conf.broker_url = os.environ.get(environmentSettings.CELERY_BROKER_URL, "redis://localhost:6379")
@@ -37,6 +38,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get('/')
+def docs():
+    return RedirectResponse('/docs')
 
 @app.on_event("startup")
 async def app_init():

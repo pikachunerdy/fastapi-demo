@@ -4,11 +4,16 @@ from schemas.mongo_models.device_models import MongoDevice, MongoDeviceDataEntry
 from asgiref.sync import async_to_sync
 
 async def process_average_measurements(device_id : str):
-    total_measurements_per_period = 24*15
+    total_measurements_per_period = 24*4
     def average_list(data : list[MongoDeviceDataEntry]):
+
         measurements = []
-        chunks = [data[x:x+total_measurements_per_period]
-            for x in range(0, len(data), total_measurements_per_period)]
+        chunk_size = int(len(data) / total_measurements_per_period)
+        print('len',len(data))
+        print('chunk size', chunk_size)
+        chunk_size = chunk_size if chunk_size > 0 else 1
+        chunks = [data[x:x+chunk_size]
+            for x in range(0, len(data), chunk_size)]
         for chunk in chunks:
             total_time = 0
             total_distance = 0
@@ -23,26 +28,29 @@ async def process_average_measurements(device_id : str):
     # TODO do this in a much better way
     mongo_device = await MongoDevice.find(MongoDevice.device_id == device_id).first_or_none()
     data = mongo_device.data
-    print(data)
+    # print(data)
     last_day = []
     last_week = []
     last_month = []
     last_year = []
     for measurement in data:
-        print('hello')
-        print(measurement)
-        if measurement.time_s - int(time.time()) < (24*60*60):
+        # print('hello')
+        # print(measurement)
+        if int(time.time()) - measurement.time_s < (24*60*60):
             last_day.append(measurement)
-        if measurement.time_s - int(time.time()) < (7*24*60*60):
+        if int(time.time()) - measurement.time_s < (7*24*60*60):
             last_week.append(measurement)
-        if measurement.time_s - int(time.time()) < (31*24*60*60):
+        if int(time.time()) - measurement.time_s < (31*24*60*60):
             last_month.append(measurement)
-        if measurement.time_s - int(time.time()) < (365*24*60*60):
+        if int(time.time()) - measurement.time_s < (365*24*60*60):
             last_year.append(measurement)
+
     mongo_device.past_day_data = average_list(last_day)
     mongo_device.past_week_data = average_list(last_week)
     mongo_device.past_month_data = average_list(last_month)
     mongo_device.past_year_data = average_list(last_year)
+    # print(mongo_device.past_week_data)
+    print('mongo devuice')
     await mongo_device.save()
 
 @celery.task(name="process_average_measurements_task")

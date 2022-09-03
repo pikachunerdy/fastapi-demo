@@ -1,5 +1,6 @@
 #!/bin/bash
-PYTHONPATH=$PYTHONPATH:../
+export PYTHONPATH=$PYTHONPATH:../
+echo $PYTHONPATH
 service_name="company-account-service"
 source ./env/bin/activate
 

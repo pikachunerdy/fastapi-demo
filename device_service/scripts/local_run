@@ -1,4 +1,6 @@
 #!/bin/bash
+export PYTHONPATH=$PYTHONPATH:../
+
 service_name="deviceservice"
 source ./env/bin/activate
 start_containers(){

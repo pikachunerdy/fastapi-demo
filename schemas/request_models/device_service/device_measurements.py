@@ -1,9 +1,10 @@
+from typing import List
 from pydantic import BaseModel
 
 
 class Measurements(BaseModel):
-    time_s : list[int]
-    distance_mm : list[int]
+    time_s : List[int]
+    distance_mm : List[int]
 
 class Payload(BaseModel):
     measurements : Measurements

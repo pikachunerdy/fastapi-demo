@@ -7,24 +7,39 @@ import datetime
 from beanie.odm.operators.find.geospatial import NearSphere
 
 def mongo_device_to_device_data(mongo_device : MongoDevice, measurement_period_type : str) -> DeviceData:
-    def unix_to_date(unix : int) -> str:
+    def unix_to_date(unix : int, use_time = True, use_date = False) -> str:
         dt = datetime.datetime.fromtimestamp(unix)
-        return str(dt.hour) + ":" + str(dt.minute) + ":" + str(dt.second)
+        # print(dt)
+        response = ''
+        if use_date:
+            # print('date')
+            response += str(dt.date())
+            # response += str(dt.day) + '/' + str(dt.month) + '/' + str(dt.year)
+        if use_date and use_time:
+            response += ' '
+        if use_time:
+            # print('using time')
+            response += str(dt.time())
+            # response += str(dt.hour) + ":" + str(dt.minute) + ":" + str(dt.second)
+        return response
 
     device : DeviceData = DeviceData.construct()
     device.creation_date = mongo_device.creation_date
     device.warning_level = str(mongo_device.warning_level)
     device.warning_level_height_mm = mongo_device.warning_level_height_mm
+
     if measurement_period_type == 'all':
-        device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s), distance_mm = measurement.distance_mm) for measurement in mongo_device.data]
+        device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s, use_date=True), distance_mm = measurement.distance_mm) for measurement in mongo_device.data]
     if measurement_period_type == 'day':
         device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s), distance_mm = measurement.distance_mm) for measurement in mongo_device.past_day_data]
     if measurement_period_type == 'week':
-        device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s), distance_mm = measurement.distance_mm) for measurement in mongo_device.past_week_data]
+        device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s, use_date=True, use_time=True), distance_mm = measurement.distance_mm) for measurement in mongo_device.past_week_data]
     if measurement_period_type == 'month':
-        device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s), distance_mm = measurement.distance_mm) for measurement in mongo_device.past_month_data]
+        device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s, use_date=True, use_time=False), distance_mm = measurement.distance_mm) for measurement in mongo_device.past_month_data]
     if measurement_period_type == 'year':
-        device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s), distance_mm = measurement.distance_mm) for measurement in mongo_device.past_year_data]
+        device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s, use_date=True, use_time=False), distance_mm = measurement.distance_mm) for measurement in mongo_device.past_year_data]
+        # print(device.measurements)
+
     device.device_id = str(mongo_device.id)
     device.latitude = mongo_device.location.coordinates[0]
     device.longitude = mongo_device.location.coordinates[1]
@@ -60,7 +75,7 @@ class DeviceHandler:
     @classmethod
     async def create(klass, company_id : int, device_id : str):
         device = await MongoDevice.get(device_id)
-        print(device)
+        # print(device)
         if int(device.company_id) != int(company_id):
             raise Exception
         handler =  klass()

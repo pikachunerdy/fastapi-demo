@@ -23,6 +23,8 @@ async def get_device(device_id : str, measurement_period_type : str,
     '''Request a specific Device, requires view_device_data permission'''
     validate_token(token_data.permission.view_device_data, token_data)
     handler = await DeviceHandler.create(token_data.company_id, device_id)
+    print(measurement_period_type)
+    # print(handler.get_device_data(measurement_period_type))
     return handler.get_device_data(measurement_period_type)
 
 # working
