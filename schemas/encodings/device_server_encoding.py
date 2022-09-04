@@ -26,3 +26,4 @@ class ServerDeviceEncoding(TemplateBase):
     warning_distance = (int,2)
     warning_message_wait_time = (int,2)
     warning_measurement_sleep_time = (int,2)
+    code_version = (int,2)
