@@ -9,3 +9,4 @@ class Measurements(BaseModel):
 class DeviceServerMessage(BaseModel):
     measurements : Measurements
     device_id : int
+    device_secret : int

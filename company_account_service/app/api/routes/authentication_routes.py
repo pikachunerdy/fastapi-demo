@@ -2,11 +2,12 @@ import time
 from fastapi.exceptions import HTTPException
 from fastapi.param_functions import Depends
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
-from app.api.authentication.authentication import Permissions, Token, TokenData, authenticate_user, create_access_token, token_authentication
+from app.api.authentication.authentication import authenticate_user, create_access_token
+from libs.authentication.user_token_auth import  Token, TokenData, Permissions, token_authentication
 from app.api.configs.configs import environmentSettings
 from app.api.main import app
 from app.api.sqlalchemy_models.models import SQLAccount
-import app.api.sqlalchemy_models.manager as db_manager 
+import app.api.sqlalchemy_models.manager as db_manager
 
 @app.post('/token', response_model=Token, tags=["Token"])
 async def get_token(form_data: OAuth2PasswordRequestForm = Depends()) -> Token:
@@ -20,7 +21,7 @@ async def get_token(form_data: OAuth2PasswordRequestForm = Depends()) -> Token:
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if not authenticate_user(sqlaccount, form_data.password): 
+    if not authenticate_user(sqlaccount, form_data.password):
         print('error')
         raise HTTPException(
             status_code=401,

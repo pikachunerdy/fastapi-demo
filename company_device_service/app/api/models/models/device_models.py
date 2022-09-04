@@ -10,16 +10,16 @@ class DeviceSearchFilter(BaseModel):
     start_index : int = Field(None, description="start index for list of devices")
     end_index : int = Field(None, description="end index for list of devices")
     pinned : bool = Field(False, description="enables only showing pinned devices")
+    labels : list[str] = Field(None, description="list of label that a device must have")
 
 class Device(BaseModel):
     device_id : str
     latitude : float
-    longitude : float 
+    longitude : float
     warning_level_height_mm : int
-    # comments : list[str] = []
     comments : str = ''
     pinned : bool
-    
+
 
 class DeviceInfo(Device):
     creation_date : int = Field(description="creation date in unix time seconds")
@@ -31,7 +31,7 @@ class Measurement(BaseModel):
     distance_mm : float = Field(description="distance measured by the sensor in mm")
 
 class DeviceData(DeviceInfo):
-    measurements : List[Measurement]
+    measurements : Optional[List[Measurement]]
     measurement_period_type : str = ''
 
 class Devices(BaseModel):

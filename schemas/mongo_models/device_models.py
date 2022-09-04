@@ -1,28 +1,6 @@
-# from mongoengine import Document
-# from mongoengine.document import EmbeddedDocument
-# from mongoengine.fields import EmbeddedDocumentField, GeoPointField, IntField, ListField, StringField
-
-# class MongoDeviceDataEntry(EmbeddedDocument):
-#     oid = IntField(required=True, primary_key=True)
-#     time_s = IntField(required=True)
-#     distance_mm = IntField(required=True)
-
-# class MongoDevice(Document):
-#     oid = StringField(required=True, primary_key=True)
-#     data = ListField(EmbeddedDocumentField(MongoDeviceDataEntry))
-#     company_id = StringField(required=True)
-#     creation_date = IntField(required=True)
-#     location = GeoPointField(required=True)
-#     warning_level = IntField()
-#     warning_level_height = IntField(required = True)
-
-# class Company(Document):
-#     oid = StringField(required=True, primary_key=True)
-
-from typing import Optional, Tuple
+from typing import Tuple
 from pydantic import BaseModel
-from beanie import Document, Indexed, init_beanie
-import asyncio, motor
+from beanie import Document
 import pymongo
 
 class GeoJson2DPoint(BaseModel):
@@ -36,7 +14,12 @@ class MongoDeviceDataEntry(BaseModel):
 class MongoDevice(Document):
     class DocumentMeta:
       collection_name = "mongo-devices"
-    device_id : int
+    # A unique integer ID given to a device, could be intercepted so treated as public
+    device_id : int # should be 4 bytes long
+    # A unique integer ID given to a device, kept secret and so used for authentication
+    device_secret : int # should be 4 bytes long
+    # The key this device is using to encrypt messages
+    aes_key : bytes
     data : list[MongoDeviceDataEntry]
     past_day_data : list[MongoDeviceDataEntry]
     past_week_data : list[MongoDeviceDataEntry]
@@ -55,13 +38,11 @@ class MongoDevice(Document):
     decryption_key : str = ''
     sleep_time_s : int = 15*60*60
     transmit_time_s : int = 24*60*60
+    labels : list[str] = []
 
     class Collection:
         name = "places"
         indexes = [
             [("location", pymongo.GEOSPHERE)],  # GEO index
         ]
-
-
-
 MongoDevice.update_forward_refs()

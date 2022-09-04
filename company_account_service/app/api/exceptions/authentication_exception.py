@@ -1,11 +1,7 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from app.api.main import app
-
-class InvalidAccessToken(Exception):
-    def __init__(self, token: str, data : str):
-        self.tokenData = token
-        self.data = data
+from libs.authentication.user_token_auth import InvalidAccessToken
 
 @app.exception_handler(InvalidAccessToken)
 async def invalid_token_exception_handler(request: Request, exc: InvalidAccessToken):

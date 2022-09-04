@@ -5,22 +5,18 @@ from app.api.models.models.device_models import DeviceInfo, DeviceSearchFilter, 
 from app.api.models.models.device_models import DeviceData, Measurement
 import datetime
 from beanie.odm.operators.find.geospatial import NearSphere
+from beanie.odm.operators.find.comparison import In
 
 def mongo_device_to_device_data(mongo_device : MongoDevice, measurement_period_type : str) -> DeviceData:
     def unix_to_date(unix : int, use_time = True, use_date = False) -> str:
         dt = datetime.datetime.fromtimestamp(unix)
-        # print(dt)
         response = ''
         if use_date:
-            # print('date')
             response += str(dt.date())
-            # response += str(dt.day) + '/' + str(dt.month) + '/' + str(dt.year)
         if use_date and use_time:
             response += ' '
         if use_time:
-            # print('using time')
             response += str(dt.time())
-            # response += str(dt.hour) + ":" + str(dt.minute) + ":" + str(dt.second)
         return response
 
     device : DeviceData = DeviceData.construct()
@@ -92,6 +88,8 @@ class DeviceHandler:
             mongo_devices = mongo_devices.find(MongoDevice.pinned == True)
         if device_filter.latitude is not None and device_filter.longitude is not None and device_filter.distance is not None:
             mongo_devices = mongo_devices.find(NearSphere(MongoDevice.location,device_filter.longitude, device_filter.latitude, device_filter.distance))
+        if device_filter.labels is not None:
+            mongo_devices = mongo_devices.find(In(MongoDevice.labels, device_filter.labels))
         mongo_devices = mongo_devices.to_list()
         mongo_devices = await mongo_devices
         if device_filter.start_index is not None and device_filter.end_index is not None:
@@ -107,7 +105,6 @@ class DeviceHandler:
         self._mongo_device.pinned = new_device.pinned
         self._mongo_device.location = GeoJson2DPoint(coordinates=(new_device.latitude, new_device.longitude))
         await self._mongo_device.save()
-        print(self._mongo_device.comments )
         return mongo_device_to_device_info(self._mongo_device)
 
     async def delete(self):

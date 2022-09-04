@@ -420,23 +420,39 @@ const deviceInfoPanelStyles = StyleSheet.create({
     width: '30em',
     color: '#999999',
     marginBottom: 10,
-    padding : 5,
+    padding: 5,
     // height: 40,
-    maxHeight : 300
-  }
+    maxHeight: 300
+  },
+  warning_level_style : {
+    width : '10em',
+    backgroundColor: '#232223',
+    borderColor: '#999999',
+    borderWidth: 2,
+    marginLeft: 5,
+    borderRadius: 6,
+    color: '#999999',
+    marginBottom: 10,
+    padding: 5,
+    // height: 40,
+  },
 });
 
 const DeviceInfoPanel = (args) => {
   const selectedDevice = useRecoilValue(selectedDeviceState);
   const panel = useRecoilValue(panelSizes);
   const [commentChanges, setCommentChanged] = useState(false);
+  const [warningLevelChanged, setWarningLevelChanged] = useState(false);
+  const [warningLevel, setWarningLevel] = useState('');
   const [commentText, setCommentText] = useState('');
   const width = parseInt(panel.vRight, 10) - 70;
   const [deviceID, setDeviceID] = useState('');
-  if(!(deviceID === selectedDevice.device_id)){
+  if (!(deviceID === selectedDevice.device_id)) {
     setDeviceID(selectedDevice.device_id);
     setCommentText(selectedDevice.comments);
+    setWarningLevel(selectedDevice.warning_level_height_mm);
     setCommentChanged(false);
+    setWarningLevelChanged(false);
   }
 
   const text_area = useRef(null);
@@ -444,10 +460,10 @@ const DeviceInfoPanel = (args) => {
   <textarea id='commentTextAreaBlockInfo' className={css(deviceInfoPanelStyles.comments_style)} value={commentText} onChange={(event) => { setCommentChanged(!(event.target.value === selectedDevice.comments)); setCommentText(event.target.value); }} ></textarea>;
 
   useEffect(() => {
-    if(text_area.current != null){
+    if (text_area.current != null) {
       console.log(text_area.current.scrollHeight);
       text_area.current.style.height = "";
-      text_area.current.style.height = text_area.current.scrollHeight  + 'px';
+      text_area.current.style.height = text_area.current.scrollHeight + 'px';
       console.log(text_area.current.style);
     }
   });
@@ -473,9 +489,19 @@ const DeviceInfoPanel = (args) => {
             {selectedDevice.pinned ? "Pinned" : "Not Pinned"}
           </Button>
           {/* warning level height */}
+
           <CardText className={css(deviceInfoPanelStyles.text_style)}>
-            Warning Level Height: {selectedDevice.warning_level_height_mm}
+            Warning Level Height: <input className={css(deviceInfoPanelStyles.warning_level_style)} value={warningLevel} onChange={(event) => {
+              setWarningLevel(event.target.value); setWarningLevelChanged(true);
+            }}></input>
           </CardText>
+          {warningLevelChanged ? <Button className={css(deviceInfoPanelStyles.comment_button_styles)}
+            onClick={() => {
+              device_list_manager.change_device_warning_level_height(selectedDevice.device_id, warningLevel);
+              setWarningLevelChanged(false);
+            }}>
+            Save
+          </Button> : <></>}
           {/* creation date */}
           <CardText className={css(deviceInfoPanelStyles.text_style)}>
             Creation Date: {dateStr}
@@ -612,10 +638,10 @@ const accountsPageStyle = StyleSheet.create({
   delete_button_style: {
     backgroundColor: "#ff4545",
     borderColor: "#ff4545",
-    marginTop : 15,
+    marginTop: 15,
   },
-  submit_button_style : {
-    marginTop : 10,
+  submit_button_style: {
+    marginTop: 10,
   },
 });
 
@@ -761,7 +787,7 @@ const AccountsPage = props => {
           return <>
             <Row className={css(accountsPageStyle.row_style)}>
               <Button className={css(accountsPageStyle.account_button_style)}
-                onClick={() => { account_manager.select_account(account.id, () => {setModifyAccountModal(true);});}}>{account.email}</Button>
+                onClick={() => { account_manager.select_account(account.id, () => { setModifyAccountModal(true); }); }}>{account.email}</Button>
             </Row>
           </>
         })
@@ -814,7 +840,7 @@ const login_page_styles = StyleSheet.create({
     width: '20em',
     margin: 'auto',
     display: 'inline-block',
-    color:'#e35f5f',
+    color: '#e35f5f',
   },
 
 });
@@ -835,10 +861,10 @@ const LoginPage = props => {
         <Input className={css(login_page_styles.form_items)} type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="password"></Input>
       </FormGroup>
       <Row className={css(login_page_styles.row_style)}>
-      {auth.showInvalidCredWarning ? <>
-      <p className={css(login_page_styles.invalid_credentials_style)}>Invalid Credentials</p>
-    </> : <></>}
-    </Row>
+        {auth.showInvalidCredWarning ? <>
+          <p className={css(login_page_styles.invalid_credentials_style)}>Invalid Credentials</p>
+        </> : <></>}
+      </Row>
       <Row className={css(login_page_styles.row_style)}>
         <Button className={css(login_page_styles.create_new_style)} onClick={() => {
           auth_manager.get_auth_key(email, password, () => {
@@ -899,7 +925,7 @@ function App() {
   if (!auth.validToken) {
     auth_manager.check_token();
   }
-  else{
+  else {
     device_list_manager.get_device_list();
     account_manager.get_account_list();
   }

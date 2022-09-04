@@ -17,7 +17,13 @@ class DeviceServerEncoding(TemplateBase):
     For each reading
         4 bytes time, 2 bytes distance
     '''
-    device_id = (int,4)
+    # device_id = (int,4)
+    class Config(TemplateBase.Config):
+        USE_ID = True
+        ID_LENGTH = 4
+        USE_ENCRYPTION = True
+        USE_IV = True
+    device_secret = (int, 4)
     measurements = (list,MeasurementEncoding)
 
 class ServerDeviceEncoding(TemplateBase):

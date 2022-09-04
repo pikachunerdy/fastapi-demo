@@ -48,10 +48,17 @@ class MeasurementsHandler(resource.Resource):
     @staticmethod
     def decode_measurement(payload_bytes : bytes) -> DeviceServerMessage:
 
-        device_server_message = DeviceServerMessage.construct()
         encoder = Encoder(DeviceServerEncoding)
+        if not encoder.validate_header(payload_bytes):
+            raise Exception
+        device_server_message = DeviceServerMessage.construct()
+        device_id = encoder.get_id(payload_bytes)
+        # TODO request key from device service
+        aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
+        payload_bytes = encoder.decrypt(payload_bytes, aes_key)
         device_server_encoding : DeviceServerEncoding = encoder.decode_bytes(payload_bytes)
-        device_server_message.device_id = device_server_encoding.device_id
+        device_server_message.device_id = device_id
+        device_server_message.device_secret = device_server_encoding.device_secret
         device_server_message.measurements = Measurements.construct()
         device_server_message.measurements.time_s = []
         device_server_message.measurements.distance_mm = []
@@ -64,10 +71,12 @@ class MeasurementsHandler(resource.Resource):
 
     async def render_post(self, request):
         try:
+            # TODO decrypt the bytes first
             device_server_message = MeasurementsHandler.decode_measurement(request.payload)
         except:
             return aiocoap.Message(payload=bytes(''))
         response = requests.post(environmentSettings.measurements_api, data=device_server_message.json())
+        # TODO encrypt the message first
         return aiocoap.Message(payload=bytes('hello','utf8'))
 
 async def main():

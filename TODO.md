@@ -16,6 +16,9 @@
 
 - Fleet Settings Page
 
+- ADD AUTHENTICATION FOR INTER SERVICE MESSAGES
+- REQUEST AES KEY IN MQTT AN COAP
+
 - coap 5
 - com dev 5
 - comp acc 5

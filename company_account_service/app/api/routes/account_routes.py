@@ -1,12 +1,12 @@
 from fastapi.params import Depends
-from app.api.authentication.authentication import TokenData, token_authentication
+from libs.authentication.user_token_auth import  TokenData, token_authentication
 from app.api.exceptions.authentication_exception import InvalidPermissionException
 from app.api.main import app
-from app.api.models.account_models import AccountInfo, Accounts, Account, RegisterAccount, ModifyAccount
+from app.api.models.account_models import AccountInfo, Accounts, RegisterAccount, ModifyAccount
 from fastapi import Body
 from app.api.services.account_handler import AccountHandler
 from app.api.services.company_handler import CompanyHandler
- 
+
 # working
 @app.get('/accounts/accounts', response_model=Accounts, tags=["Account"])
 async def get_accounts(token_data : TokenData = Depends(token_authentication)) -> Accounts:
@@ -47,4 +47,3 @@ async def delete_account(account_id : str, token_data : TokenData = Depends(toke
     await account_handler.delete()
     print('deleted')
     return
-

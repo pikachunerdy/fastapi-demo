@@ -1,12 +1,8 @@
-from app.api.authentication.authentication import Permissions
+from libs.authentication.user_token_auth import Permissions
 from app.api.main import app
 from app.api.models.account_models import Account
 from app.api.services.account_handler import AccountHandler
 from app.api.sqlalchemy_models.models import SQLCompany
-# from app.api.sqlalchemy_models.db import async_session_maker
-from sqlalchemy import insert
-
-from app.api.sqlalchemy_models.db import database
 
 
 @app.get('/create_user', tags=["Test"])

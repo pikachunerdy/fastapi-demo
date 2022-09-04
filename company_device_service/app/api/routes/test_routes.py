@@ -6,6 +6,8 @@ import time
 async def create_device():
     device : MongoDevice = MongoDevice.construct()
     device.device_id = 10
+    device.device_secret = 20
+    device.aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
     device.data = []
     device.past_day_data = []
     device.past_week_data = []
@@ -30,6 +32,8 @@ async def create_device():
 
     device = MongoDevice.construct()
     device.device_id = 20
+    device.device_secret = 30
+    device.aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
     device.data = []
     device.past_day_data = []
     device.past_week_data = []

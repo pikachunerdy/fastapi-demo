@@ -176,6 +176,43 @@ export var device_list_manager = {
         };
         fetch(obj.link, obj.object).then(() => { this.get_device_list(); callback(); this.select_device(device_id); });
       });
+  },
+
+  change_device_warning_level_height : function (device_id, warning_level_height, callback = () => { }) {
+    var obj = {
+      link: device_link + '/device?' + new URLSearchParams({
+        device_id: device_id,
+        measurement_period_type: 'none',
+      }),
+      object: {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+
+    fetch(obj.link, obj.object)
+      .then(response => response.json())
+      .then(device => {
+        device.warning_level_height_mm = warning_level_height;
+        var obj = {
+          link: device_link + '/device',
+          object: {
+            method: 'PUT',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer ' + getRecoil(authState).token,
+              'Content-type': 'application/json'
+            },
+            body: JSON.stringify(
+              device
+            )
+          }
+        };
+        fetch(obj.link, obj.object).then(() => { this.get_device_list(); callback(); this.select_device(device_id); });
+      });
   }
 
 }

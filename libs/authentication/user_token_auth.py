@@ -3,12 +3,14 @@ from typing import Optional
 
 from fastapi.params import Depends
 from app.api.configs.configs import environmentSettings
-from app.api.exceptions.authentication_exception import InvalidAccessToken
-
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from passlib.context import CryptContext
 from pydantic import BaseModel
+
+class InvalidAccessToken(Exception):
+    def __init__(self, token: str, data : str):
+        self.tokenData = token
+        self.data = data
 
 class Token(BaseModel):
     access_token: str
@@ -22,26 +24,19 @@ class Permissions(BaseModel):
     view_device_data : Optional[bool] = False
 
 class TokenData(BaseModel):
-    company_id: str 
+    company_id: str
     account_id: str
     permission: Permissions
     exp : int
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=environmentSettings.token_url)
 
 async def token_authentication(token: str = Depends(oauth2_scheme)) -> TokenData:
-    print("auth")
     try:
-        print(token)
         payload = jwt.decode(token, environmentSettings.jwt_secret, algorithms=[environmentSettings.jwt_algorithm])
-        print(payload)
         tokenData = TokenData(**payload)
-        print(tokenData)
         if tokenData.exp < int(time.time()): raise InvalidAccessToken(token, "expired")
         return tokenData
     except:
-        print("fail")
         pass
     raise InvalidAccessToken(token, "find token")

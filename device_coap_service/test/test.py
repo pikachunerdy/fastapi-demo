@@ -4,6 +4,9 @@ import asyncio
 from aiocoap import *
 import time
 import math
+from os import urandom
+from Crypto.Cipher import AES
+
 
 async def main():
     """Perform a single PUT request to localhost on the default port, URI
@@ -35,9 +38,18 @@ async def main():
     num_measurements = [int(x) for x in int(len(measurements)/6).to_bytes(2,'little', signed = False)]
     # print('num',num_measurements)
     device_id = [10,0,0,0]
-    hash_sum = (sum(num_measurements) + sum(measurements)+sum(device_id)) & 255
+    device_secret = [20,0,0,0]
     # print(max([0,hash_sum] + device_id + num_measurements + measurements))
-    payload = bytearray([0,hash_sum] + device_id + num_measurements + measurements)
+
+    iv=urandom(16)
+    cipher = AES.new(b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92', AES.MODE_CFB, IV=iv)
+    byte_array = bytearray(device_secret + num_measurements  + measurements)
+    message = cipher.encrypt(byte_array)
+    iv = [int(x) for x in iv]
+    message = [int(x) for x in message]
+
+    hash_sum = (sum(iv+message+device_id)) & 255
+    payload = bytearray([0,hash_sum] + device_id + iv + message)
     # payload = str(payload, 'UTF-8')
     # print(type(payload))
     request = Message(code=POST, payload=payload, uri="coap://localhost/measurements")

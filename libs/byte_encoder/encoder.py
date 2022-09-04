@@ -8,25 +8,22 @@ from typing import get_type_hints
 import inspect
 from Crypto.Cipher import AES
 
-# Template values are either (type, length) or (list, (type,length))
+# Template values are either (type, length) or (list, (type,length)) or (list, TemplateBase)
 
 class TemplateBase:
 
     class Config:
+        # HEADER SUM ID IV MESSAGE
         USE_HEADER_BYTE : bool = True
         HEADER_BYTE_VALUE : int = 0
         USE_SUM : bool = True
-        USE_ID : bool
+        USE_ID : bool = False
         ID_LENGTH : int = 4
         USE_ENCRYPTION : bool = False
-        USE_PADDING : bool = False
-        BLOCK_SIZE_BYTES : int = 16
         USE_IV : bool = False
         IV_SIZE_BYTES : int = 16
         ENDIAN = 'little'
         STR_ENCODING = 'utf-8'
-
-
 
 class Child(TemplateBase):
 
@@ -57,17 +54,13 @@ class Encoder:
 
         count = start_index
         if use_header:
-            ints = [int(x) for x in byte_array]
             if self.template.Config.USE_HEADER_BYTE:
-                if byte_array[count] != self.template.Config.HEADER_VALUE:
-                    raise Exception
                 count += 1
             if self.template.Config.USE_SUM:
-                message_sum = ints[1]
-                actual_sum = sum(ints[2:]) & 255
-                if actual_sum != message_sum:
-                    raise Exception
                 count += 1
+            if self.template.Config.USE_ID:
+                count += self.template.Config.ID_LENGTH
+
         response = self.template()
         for name,value in self.members:
             klass = value[0]
@@ -102,29 +95,38 @@ class Encoder:
 
         return response, count - start_index
 
-    def get_id(self, byte_array : bytes) -> bytes:
+    def get_id(self, byte_array : bytes) -> int:
         index = 0 if not self.template.Config.USE_HEADER_BYTE else 1
         index = index if not self.template.Config.USE_SUM else (index + 1)
-        return byte_array[index:index + self.template.Config.ID_LENGTH]
+        return int.from_bytes(byte_array[index:index + self.template.Config.ID_LENGTH], self.template.Config.ENDIAN, signed=False)
+
+    def validate_header(self, byte_array : bytes) -> bool:
+        count = 0
+        ints = [int(x) for x in byte_array]
+        if self.template.Config.USE_HEADER_BYTE:
+            if byte_array[count] != self.template.Config.HEADER_BYTE_VALUE:
+                return False
+            count += 1
+        if self.template.Config.USE_SUM:
+            message_sum = ints[1]
+            actual_sum = sum(ints[2:]) & 255
+            if actual_sum != message_sum:
+                return False
+        return True
 
 
-    def decrypt(self, byte_array : bytes, key) -> bytes:
+    def decrypt(self, byte_array : bytes, key : bytes) -> bytes:
         index = 0 if not self.template.Config.USE_HEADER_BYTE else 1
         index = index if not self.template.Config.USE_SUM else (index + 1)
         index = index if not self.template.Config.USE_ID else (index + self.template.Config.ID_LENGTH )
-        nonce = byte_array[index:index + 12]
-        index += 12
-        cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
+        header = byte_array[:index]
+        iv = byte_array[index:index + 16]
+        index += 16
+        cipher = AES.new(key, AES.MODE_CFB, IV=iv)
+        message = cipher.decrypt(byte_array[index:])
+        return header + message
 
 
     def decode_bytes(self, byte_array : bytes) -> TemplateBase:
         x = (self._decode_bytes(byte_array, True, 0))
         return x[0]
-
-
-
-
-class Template(TemplateBase):
-
-    time = (list,(int,2))
-    measurements = (list,(int,2))
