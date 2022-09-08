@@ -14,17 +14,17 @@ source ./env/bin/activate
 #     sudo docker rm --volumes test-postgres 2> /dev/null
 # }
 
-start_containers(){
-    # docker run -it --name ${service_name}-rabbitmq-local -p 5672:5672 -p 15672:15672 -p 1883:1883 -p 15675:15675 -d rabbitmq:3
-    sudo docker run --name ${service_name}-mongo-container -p 27017:27017 -d mongo:latest
-}
+# start_containers(){
+#     # docker run -it --name ${service_name}-rabbitmq-local -p 5672:5672 -p 15672:15672 -p 1883:1883 -p 15675:15675 -d rabbitmq:3
+#     sudo docker run --name ${service_name}-mongo-container -p 27017:27017 -d mongo:latest
+# }
 
-remove_containers(){
-    # docker stop ${service_name}-rabbitmq-local 2> /dev/null
-    # docker rm --volumes ${service_name}-rabbitmq-local 2> /dev/null
-    sudo docker stop ${service_name}-mongo-container 2> /dev/null
-    sudo docker rm --volumes ${service_name}-mongo-container 2> /dev/null
-}
+# remove_containers(){
+#     # docker stop ${service_name}-rabbitmq-local 2> /dev/null
+#     # docker rm --volumes ${service_name}-rabbitmq-local 2> /dev/null
+#     sudo docker stop ${service_name}-mongo-container 2> /dev/null
+#     sudo docker rm --volumes ${service_name}-mongo-container 2> /dev/null
+# }
 
 
 echo "----------------------"
@@ -41,9 +41,9 @@ export database_url="postgresql+asyncpg://test:test@localhost:5432/test"
 echo "----------------------"
 echo "Starting Containers"
 #Ensure containers aren't running
-remove_containers
+# remove_containers
 #Start Containers
-start_containers
+# start_containers
 sleep 5
 echo "----------------------"
 echo "Starting Service"
@@ -52,6 +52,6 @@ uvicorn app.api.main:app --reload --port 8000
 
 echo "----------------------"
 echo "Stopping Containers"
-remove_containers
+# remove_containers
 rm env.env 2>/dev/null
 #rm test.sqlite 2> /dev/null

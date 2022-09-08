@@ -23,5 +23,5 @@ class MongoCompanyAccount(Document):
     email : str
     password_hash : str
     permissions : MongoPermissions = MongoPermissions()
-    company_id : int
+    company_id : PydanticObjectId
     master_account : bool = False

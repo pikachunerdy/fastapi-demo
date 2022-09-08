@@ -5,20 +5,22 @@ from app.api.authentication.authentication import get_password_hash
 # from app.api.services.mappers.permission_mapper import permissions_to_sqlpermissions
 # from app.api.sqlalchemy_models.manager import SQLAccountManger, SQLCompanyManager
 from schemas.mongo_models.account_models import MongoCompanyAccount, MongoPermissions
+from beanie.odm.fields import PydanticObjectId
+
 
 
 def mongo_account_to_account_info(mongo_account: MongoCompanyAccount) -> AccountInfo:
     account_info = AccountInfo.construct()
-    account_info.company_id = mongo_account.company_id
+    account_info.company_id = str(mongo_account.company_id)
     account_info.email = mongo_account.email
-    account_info.id = mongo_account.id
+    account_info.id = str(mongo_account.id)
     account_info.permissions = mongo_account.permissions
     return account_info
 #     raise NotImplementedError()
 
 def permissions_to_mongo_permissions(permissions: Permissions) -> MongoPermissions:
     mongo_permissions = MongoPermissions.construct()
-    return mongo_permissions.permissions
+    return permissions
     # raise NotImplementedError()
 
 class AccountHandler:
@@ -30,8 +32,8 @@ class AccountHandler:
     async def create(klass, account_id: str, company_id: str):
         # _sql_account = await SQLAccountManger.get_SQLAccount(account_id, company_id)
         mongo_account = await MongoCompanyAccount.find(
-            MongoCompanyAccount.id == account_id,
-            MongoCompanyAccount.company_id == company_id
+            MongoCompanyAccount.id == PydanticObjectId(account_id),
+            MongoCompanyAccount.company_id == PydanticObjectId(company_id)
         ).first_or_none()
         if mongo_account is None:
             raise Exception
@@ -68,8 +70,9 @@ class AccountHandler:
         mongo_account.email = register_account.email
         mongo_account.permissions = register_account.permissions
         mongo_account.password_hash = get_password_hash(register_account.password)
-        mongo_account.company_id = company_id
+        mongo_account.company_id = PydanticObjectId(company_id)
         await mongo_account.save()
+        print(mongo_account)
         return mongo_account_to_account_info(mongo_account)
 
 

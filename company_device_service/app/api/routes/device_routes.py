@@ -17,7 +17,7 @@ async def get_devices(
     start_index : int = None,
     end_index : int = None,
     labels : list[str] =  Query(default=[]),
-    pinned : bool = None,
+    pinned : bool = False,
     token_data : TokenData = Depends(token_authentication)) -> Devices:
     '''Request a list of Devices,
     can use filters such as nearest to a coordinate or at a certain warning level,
@@ -41,7 +41,7 @@ async def get_devices(
     return devices
 
 @app.get('/device', response_model=DeviceData, tags=["Device Info"])
-async def get_device(device_id : str, measurement_period_type : str,
+async def get_device(device_id : int, measurement_period_type : str,
     token_data : TokenData = Depends(token_authentication)) -> DeviceData:
     '''Request a specific Device, requires view_device_data permission'''
     validate_token(token_data.permission.view_device_data, token_data)
@@ -57,7 +57,7 @@ async def put_device(device : Device = Body(...),
     return await handler.modify(device)
 
 @app.delete('/device', tags=["Device Info"])
-async def delete_device(device_id : str, token_data : TokenData = Depends(token_authentication)):
+async def delete_device(device_id : int, token_data : TokenData = Depends(token_authentication)):
     '''Requires manage_device permission'''
     validate_token(token_data.permission.manage_devices, token_data)
     return DeviceHandler(token_data.company_id, device_id).delete()

@@ -3,6 +3,7 @@ from pydantic import BaseSettings
 class EnvironmentSettings(BaseSettings):
     measurements_api : str = "http://localhost:8002/measurements"
     ENV : str = ""
+    INTER_SERVICE_KEY : str = 'test'
 
 
 environmentSettings = EnvironmentSettings()

@@ -2,6 +2,8 @@ from typing import Tuple
 from pydantic import BaseModel
 from beanie import Document
 import pymongo
+from beanie.odm.fields import PydanticObjectId
+
 
 class GeoJson2DPoint(BaseModel):
     type: str = "Point"
@@ -25,7 +27,7 @@ class MongoDevice(Document):
     past_week_data : list[MongoDeviceDataEntry]
     past_month_data : list[MongoDeviceDataEntry]
     past_year_data : list[MongoDeviceDataEntry]
-    company_id : str
+    company_id : PydanticObjectId
     creation_date : int
     location : GeoJson2DPoint
     warning_level : int

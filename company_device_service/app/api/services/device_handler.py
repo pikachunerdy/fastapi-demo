@@ -2,6 +2,8 @@ from app.api.models.models.device_models import Device, DeviceData, DeviceInfo, 
 from schemas.mongo_models.account_models import MongoCompany
 from schemas.mongo_models.device_models import GeoJson2DPoint, MongoDevice
 from typing import List
+from beanie.odm.fields import PydanticObjectId
+
 from app.api.models.models.device_models import DeviceInfo, DeviceSearchFilter, Devices
 from app.api.models.models.device_models import DeviceData, Measurement
 import datetime
@@ -81,9 +83,10 @@ class DeviceHandler:
     @classmethod
     async def create(klass, company_id : str, device_id : str):
         device = await MongoDevice.find(MongoDevice.device_id == int(device_id)).first_or_none()
-        company = await MongoCompany.find(MongoCompany.company_id == company_id).first_or_none()
+        company = await MongoCompany.get(company_id)
         # print(device)
-        if device.company_id != company_id:
+        print(device)
+        if str(device.company_id) != str(company_id):
             raise Exception
         if company is None:
             raise Exception
@@ -95,8 +98,9 @@ class DeviceHandler:
     @staticmethod
     async def get_devices(device_filter : DeviceSearchFilter, company_id : str) -> Devices:
         # company_id = int(company_id)
-        mongo_devices = MongoDevice.find(MongoDevice.company_id == company_id)
-        mongo_company = await MongoCompany.find(MongoCompany.company_id == company_id).first_or_none()
+        mongo_devices = MongoDevice.find(MongoDevice.company_id == PydanticObjectId(company_id))
+        print(company_id)
+        mongo_company = await MongoCompany.get(PydanticObjectId(company_id))
         if mongo_company is None:
             raise Exception
         if device_filter.warning_level is not None:

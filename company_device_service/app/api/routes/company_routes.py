@@ -8,7 +8,7 @@ from schemas.mongo_models.device_models import MongoDevice
 @app.post('/company/device_label',tags = ['Company'])
 async def  add_label(label : str, device_id : int, tokenData : TokenData = Depends(token_authentication)):
     company_id = tokenData.company_id
-    company = await MongoCompany.find(MongoCompany.company_id == company_id).first_or_none()
+    company = await MongoCompany.get(company_id)
     if company is None:
         raise Exception
     if not (label in company.labels):
@@ -22,7 +22,7 @@ async def  add_label(label : str, device_id : int, tokenData : TokenData = Depen
 @app.delete('/company/device_label',tags = ['Company'])
 async def  delete_label(label : str, device_id : int, tokenData : TokenData = Depends(token_authentication)):
     company_id = tokenData.company_id
-    company = await MongoCompany.find(MongoCompany.company_id == company_id).first_or_none()
+    company = await MongoCompany.get(company_id)
     if company is None:
         raise Exception
     if not (label in company.labels):
@@ -32,26 +32,26 @@ async def  delete_label(label : str, device_id : int, tokenData : TokenData = De
         company.labels[label].remove(device.id)
     await company.save()
 
-# @app.post('/company/label',tags = ['Company'])
-# async def  add_comapny_label(label : str, tokenData : TokenData = Depends(token_authentication)):
-#     company_id = tokenData.company_id
-#     company = await MongoCompany.find(MongoCompany.company_id == company_id).first_or_none()
-#     if company is None:
-#         raise Exception
-#     print(label)
-#     if label == "":
-#         raise Exception
-#     if not (label in company.labels):
-#         print(label)
-#         company.labels[label] = []
-#     print(list(company.labels.keys()))
-#     await company.save()
+@app.post('/company/label',tags = ['Company'])
+async def  add_comapny_label(label : str, tokenData : TokenData = Depends(token_authentication)):
+    company_id = tokenData.company_id
+    company = await MongoCompany.get(company_id)
+    if company is None:
+        raise Exception
+    print(label)
+    if label == "":
+        raise Exception
+    if not (label in company.labels):
+        print(label)
+        company.labels[label] = []
+    print(list(company.labels.keys()))
+    await company.save()
 
 
 @app.delete('/company/label', tags = ['Company'])
 async def delete_company_label(label : str, tokenData : TokenData = Depends(token_authentication)):
     company_id = tokenData.company_id
-    company = await MongoCompany.find(MongoCompany.company_id == company_id).first_or_none()
+    company = await MongoCompany.get(company_id)
     if company is None:
         raise Exception
     labels = company.labels
@@ -62,7 +62,7 @@ async def delete_company_label(label : str, tokenData : TokenData = Depends(toke
 @app.get('/company/labels', tags=['Company'], response_model=list[str])
 async def get_labels(tokenData : TokenData = Depends(token_authentication)) -> list[str]:
     company_id = tokenData.company_id
-    company = await MongoCompany.find(MongoCompany.company_id == company_id).first_or_none()
+    company = await MongoCompany.get(company_id)
     if company is None:
         raise Exception
     # print(list(company.labels.keys()))

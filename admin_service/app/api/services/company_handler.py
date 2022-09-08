@@ -17,15 +17,20 @@ class CompanyHandler:
         # handler =  klass()
         # handler.sql_company = sql_company
         # return handler
-        mongo_account = await MongoCompany.find(MongoCompany.id == company_id).first_or_none()
+        mongo_account = await MongoCompany.get(company_id)
         handler = klass()
         handler._mongo_company = mongo_account
         return handler
 
     async def get_company_accounts_list(self) -> Accounts:
+        print('sbv skjbj')
         # accounts = Accounts.construct()
         # accounts.accounts = [sqlaccount_to_account_info(account) for account in self.sql_company.accounts]
         # return accounts
+        print('lgjjbsdv')
         accounts = Accounts.construct()
-        accounts.accounts = [mongo_account_to_account_info(account) async for account in MongoCompanyAccount.find(MongoCompanyAccount.company_id == self._mongo_company.company_id)]
+        print('s;kdnsllbgnslkkbn')
+
+        accounts.accounts = [mongo_account_to_account_info(mongo_account) async for mongo_account in MongoCompanyAccount.find_many(MongoCompanyAccount.company_id == self._mongo_company.id)]
+        print(accounts.accounts)
         return accounts

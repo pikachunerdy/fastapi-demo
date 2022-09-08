@@ -9,6 +9,7 @@ async def create_device():
     await sleep(5)
     # company = MongoCompany.construct()
     company = await MongoCompany.find_one(MongoCompany.name == 'test')
+    print(company)
     # company.company_id = 0
     company.labels = {
     }
@@ -38,7 +39,7 @@ async def create_device():
     device.comments = ''
     device.pinned = False
     await device.save()
-    print('saved')
+    print(device)
 
     device = MongoDevice.construct()
     device.device_id = 20
