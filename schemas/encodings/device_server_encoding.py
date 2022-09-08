@@ -1,10 +1,8 @@
 from libs.byte_encoder.encoder import TemplateBase
 
-
 class MeasurementEncoding(TemplateBase):
     time = (int, 4)
     distance = (int, 2)
-
 
 class DeviceServerEncoding(TemplateBase):
     '''
@@ -27,9 +25,9 @@ class DeviceServerEncoding(TemplateBase):
     measurements = (list,MeasurementEncoding)
 
 class ServerDeviceEncoding(TemplateBase):
-    message_wait_time = (int,2)
-    measurement_sleep_time = (int,2)
-    warning_distance = (int,2)
-    warning_message_wait_time = (int,2)
-    warning_measurement_sleep_time = (int,2)
+    message_wait_time_s = (int,2)
+    measurement_sleep_time_s = (int,2)
+    warning_distance_mm = (int,2)
+    warning_message_wait_time_s = (int,2)
+    warning_measurement_sleep_time_s = (int,2)
     code_version = (int,2)

@@ -2,7 +2,8 @@ from jose import jwt
 from passlib.context import CryptContext
 
 from app.api.configs.configs import environmentSettings
-from app.api.sqlalchemy_models.models import SQLAccount
+# from app.api.sqlalchemy_models.models import SQLAccount
+from schemas.mongo_models.account_models import MongoCompanyAccount
 
 from libs.authentication.user_token_auth import TokenData
 
@@ -14,8 +15,8 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def authenticate_user(sqlaccount : SQLAccount, password : str):
-    return verify_password(password, sqlaccount.password_hash)
+def authenticate_user(mongo_account : MongoCompanyAccount, password : str):
+    return verify_password(password, mongo_account.password_hash)
 
 def create_access_token(data: TokenData):
     to_encode = data.dict()

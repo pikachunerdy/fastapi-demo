@@ -1,9 +1,19 @@
+from asyncio import sleep
+from schemas.mongo_models.account_models import MongoCompany
 from schemas.mongo_models.device_models import GeoJson2DPoint, MongoDevice, MongoDeviceDataEntry
 from app.api.main import app
 import math
 import time
 @app.get('/create_device', tags = ["Tests"])
 async def create_device():
+    await sleep(5)
+    # company = MongoCompany.construct()
+    company = await MongoCompany.find_one(MongoCompany.name == 'test')
+    # company.company_id = 0
+    company.labels = {
+    }
+    await company.save()
+
     device : MongoDevice = MongoDevice.construct()
     device.device_id = 10
     device.device_secret = 20
@@ -19,7 +29,7 @@ async def create_device():
     #     entry.time_s = date + i*30*60
     #     entry.distance_mm = 50 * math.sin(i*math.pi*2/24-2)
     #     device.past_day_data.append(entry)
-    device.company_id = 0
+    device.company_id = company.id
     device.creation_date = int(time.time())
     device.location = GeoJson2DPoint(coordinates=(51.500,-0.1743))
     device.warning_level = 5
@@ -45,7 +55,7 @@ async def create_device():
         entry.time_s = date + i*30*60
         entry.distance_mm = 50 * math.sin(i*math.pi*2/24)
         device.past_day_data.append(entry)
-    device.company_id = 0
+    device.company_id = company.id
     device.creation_date = int(time.time())
     device.location = GeoJson2DPoint(coordinates=(51.498,-0.1832))
     device.warning_level = 5

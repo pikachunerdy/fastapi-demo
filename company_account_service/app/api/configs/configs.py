@@ -6,7 +6,8 @@ class EnvironmentSettings(BaseSettings):
     jwt_algorithm : str = "HS256"
     jwt_exp : int = 6000
     token_url :str = "http:localhost:8000/token"
-    database_url : str = "postgresql+asyncpg://test:test@localhost:5433/"
+    # database_url : str = "postgresql+asyncpg://test:test@localhost:5433/"
+    mongo_database_url : str = 'mongodb://localhost:27017/'
     ENV : str = ""
 
 environmentSettings = EnvironmentSettings()

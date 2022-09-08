@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 from pydantic.types import Optional, List
 
-
 class DeviceSearchFilter(BaseModel):
     latitude : Optional[float] = Field(None,description="degrees of latitude of centre of search circle")
     longitude : Optional[float] = Field(None,description="degrees of longitude of centre of search circle")
@@ -9,8 +8,8 @@ class DeviceSearchFilter(BaseModel):
     warning_level : Optional[int] = Field(None,description="filter for devices with this warning level")
     start_index : int = Field(None, description="start index for list of devices")
     end_index : int = Field(None, description="end index for list of devices")
+    labels : list[str] = []
     pinned : bool = Field(False, description="enables only showing pinned devices")
-    labels : list[str] = Field(None, description="list of label that a device must have")
 
 class Device(BaseModel):
     device_id : str
@@ -25,6 +24,7 @@ class DeviceInfo(Device):
     creation_date : int = Field(description="creation date in unix time seconds")
     warning_level : str
     installation_comment : str
+    labels : list[str]
 
 class Measurement(BaseModel):
     time_s : str = Field(description="unix time in seconds of a measurement")

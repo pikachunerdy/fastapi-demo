@@ -16,13 +16,11 @@ export class MapContainer extends Component {
     document.getElementById("mapID").firstChild.firstChild.firstChild.style.height = "0px";    // set el height and width etc.
   };
   render() {
-    console.log(mapStyles);
     mapStyles = {
       height: (parseInt(getRecoil(panelSizes).hTop.replace(/px/,""))-40)+"px",
       width: (parseInt(getRecoil(panelSizes).vLeft.replace(/px/,""))-60)+"px",
     };
     var devices = getRecoil(deviceListState);
-    console.log(devices);
     return (
       <Map
         resetBoundsOnResize={true}
@@ -37,7 +35,6 @@ export class MapContainer extends Component {
         }
       >
         {devices.devices.map((device) => {
-          console.log(device);
           return (<Marker position={{lat : device.latitude, lng : device.longitude}} onClick={() => device_list_manager.select_device(device.device_id)}/>)
         })}
       </Map>

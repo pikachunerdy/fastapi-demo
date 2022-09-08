@@ -25,7 +25,7 @@ class MongoDevice(Document):
     past_week_data : list[MongoDeviceDataEntry]
     past_month_data : list[MongoDeviceDataEntry]
     past_year_data : list[MongoDeviceDataEntry]
-    company_id : int
+    company_id : str
     creation_date : int
     location : GeoJson2DPoint
     warning_level : int
@@ -38,7 +38,7 @@ class MongoDevice(Document):
     decryption_key : str = ''
     sleep_time_s : int = 15*60*60
     transmit_time_s : int = 24*60*60
-    labels : list[str] = []
+    # labels : list[str] = []
 
     class Collection:
         name = "places"

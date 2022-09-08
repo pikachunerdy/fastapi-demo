@@ -1,4 +1,4 @@
-import { deviceListState, authState, selectedDeviceState, accountListState, selectedAccountState } from './atoms.js';
+import { deviceListState, authState, selectedDeviceState, accountListState, selectedAccountState, companyState, filterState } from './atoms.js';
 import { getRecoil, setRecoil } from "recoil-nexus";
 
 
@@ -68,10 +68,108 @@ export var auth_manager = {
   }
 };
 
-export var device_list_manager = {
-  get_device_list: function () {
+export var company_manager = {
+
+  _get_labels: function () {
     var obj = {
-      link: device_link + '/devices',
+      link: device_link + '/company/labels',
+      object: {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    fetch(obj.link, obj.object)
+      .then(response => response.json())
+      .then(data => setRecoil(companyState, {labels : data}));
+  },
+
+  remove_device_label: async function (device_id, label) {
+    var obj = {
+      link: device_link + '/company/device_label?' + new URLSearchParams({
+        label: label,
+        device_id: device_id,
+      }),
+      object: {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    await fetch(obj.link, obj.object);
+  },
+
+  add_device_label: async function (device_id, label) {
+    var obj = {
+      link: device_link + '/company/device_label?' + new URLSearchParams({
+        label: label,
+        device_id: device_id,
+      }),
+      object: {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    await fetch(obj.link, obj.object);
+  },
+
+  create_label: function (label) {
+    var obj = {
+      link: device_link + '/company/label?' + new URLSearchParams({
+        label: label,
+      }),
+      object: {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    fetch(obj.link, obj.object)
+      .then(() => this._get_labels());
+  },
+
+  delete_label: function (label) {
+    var obj = {
+      link: device_link + '/company/label?' + new URLSearchParams({
+        label: label,
+      }),
+      object: {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ' + getRecoil(authState).token,
+        }
+      }
+    };
+    fetch(obj.link, obj.object)
+      .then(() => this._get_labels());
+  },
+
+  setup : function () {
+    this._get_labels();
+  }
+}
+
+export var device_list_manager = {
+  get_device_list: async function (callback = () => {}) {
+    const filter = getRecoil(filterState);
+    const params = filter.labels ? new URLSearchParams({
+      pinned: filter.pinned,
+    }) :new URLSearchParams({
+    });
+    var label_param = '';
+    filter.labels.map(label => '&labels=' + label).forEach(label => label_param += label);
+    var obj = {
+      link: device_link + '/devices?' + params + label_param,
       object: {
         method: 'GET',
         headers: {
@@ -81,12 +179,14 @@ export var device_list_manager = {
       }
     };
     // console.log(obj);
-    fetch(obj.link, obj.object)
+    await fetch(obj.link, obj.object)
       .then(response => response.json())
-      .then(data => setRecoil(deviceListState, data));
+      .then((response) => {console.log(response); return response})
+      .then(data => setRecoil(deviceListState, data))
+      .then(callback());
   },
 
-  select_device: function (device_id, measurement_period_type = "day") {
+  select_device: async function (device_id, measurement_period_type = "day") {
     var obj = {
       link: device_link + '/device?' + new URLSearchParams({
         device_id: device_id,
@@ -100,7 +200,7 @@ export var device_list_manager = {
         }
       }
     };
-    fetch(obj.link, obj.object)
+   await fetch(obj.link, obj.object)
       .then(response => response.json())
       .then(data => { setRecoil(selectedDeviceState, data) });
     // .then(console.log(getRecoil(selectedDeviceState)))
@@ -178,7 +278,7 @@ export var device_list_manager = {
       });
   },
 
-  change_device_warning_level_height : function (device_id, warning_level_height, callback = () => { }) {
+  change_device_warning_level_height: function (device_id, warning_level_height, callback = () => { }) {
     var obj = {
       link: device_link + '/device?' + new URLSearchParams({
         device_id: device_id,
@@ -213,8 +313,7 @@ export var device_list_manager = {
         };
         fetch(obj.link, obj.object).then(() => { this.get_device_list(); callback(); this.select_device(device_id); });
       });
-  }
-
+  },
 }
 
 export var account_manager = {
@@ -277,9 +376,8 @@ export var account_manager = {
     };
     fetch(obj.link, obj.object)
       .then(response => response.json())
-      .then((response) => { console.log(response); return response })
+      .then((response) => { return response })
       .then(data => { setRecoil(selectedAccountState, data) })
-      .then(() => console.log(getRecoil(selectedAccountState)))
       .then(() => callback());
   },
 
@@ -308,7 +406,6 @@ export var account_manager = {
         view_device_data: view_devices
       }
     }
-    console.log(new_account);
     var obj = {
       link: auth_link + '/accounts/account',
       object: {

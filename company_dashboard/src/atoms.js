@@ -1,6 +1,20 @@
 import {
     atom,
 } from 'recoil';
+import { company_manager, device_list_manager } from './managers';
+
+export const filterState = atom({
+    key: 'filterState',
+    default : {
+        pinned : false,
+        labels : []
+    },
+    effects: [
+        () => {
+            // device_list_manager.get_device_list();
+        },
+      ],
+})
 
 export const deviceListState = atom({
     key: 'deviceListState', // unique ID (with respect to other atoms/selectors)
@@ -29,6 +43,13 @@ export const selectedAccountState = atom({
         id : null
     },
 });
+
+export const companyState = atom({
+    'key' : 'companyState',
+    default : {
+        labels : [],
+    }
+})
 
 export const authState = atom({
     key : 'authState',

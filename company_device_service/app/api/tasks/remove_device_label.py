@@ -1,11 +1,14 @@
-# import asyncio
+# from app.api.main import celery
+
+# from schemas.mongo_models.device_models import MongoDevice
+
 
 # async def remove_label_from_devices(label : str, company_id : int):
-#     ...
-#     # find the required company and remove the label from every device in this company
-#     # then save every device
+#     mongo_devices = MongoDevice.find(MongoDevice.company_id == company_id)
+#     async for mongo_device in mongo_devices:
+#         mongo_device.labels.remove(label)
+#         mongo_device.save()
 
-# import asyncio
 # @celery.task(name="remove_label_from_devices_task")
-# def remove_label_from_devices_task(label : str, company_id : int):
-#     asyncio.run(remove_label_from_devices(label, company_id))
+# async def remove_label_from_devices_task(label : str, company_id : int):
+#     await remove_label_from_devices(label, company_id)
