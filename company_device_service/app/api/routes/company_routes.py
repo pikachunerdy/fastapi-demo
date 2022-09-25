@@ -1,9 +1,11 @@
-from app.api.main import app
-from schemas.mongo_models.account_models import MongoCompany
-from libs.authentication.user_token_auth import  TokenData, token_authentication
 from fastapi.params import Depends
 
+from app.api.main import app
+
+from schemas.mongo_models.account_models import MongoCompany
 from schemas.mongo_models.device_models import MongoDevice
+from libs.authentication.user_token_auth import  TokenData, token_authentication
+
 
 @app.post('/company/device_label',tags = ['Company'])
 async def  add_label(label : str, device_id : int, tokenData : TokenData = Depends(token_authentication)):

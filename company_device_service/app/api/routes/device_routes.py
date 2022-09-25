@@ -1,11 +1,15 @@
+'''Routes that use the device models'''
+
 from typing import Optional
+
+from fastapi import Query
 from fastapi.param_functions import Body, Depends
-from libs.authentication.user_token_auth import  TokenData, token_authentication
+
 from app.api.main import app
 from app.api.models.models.device_models import Device, DeviceData, DeviceInfo, DeviceSearchFilter, Devices
 from app.api.routes.tools.validate_token import validate_token
 from app.api.services.device_handler import DeviceHandler
-from fastapi import Query
+from libs.authentication.user_token_auth import  TokenData, token_authentication
 
 
 @app.get('/devices', response_model=Devices, tags=["Device Info"])

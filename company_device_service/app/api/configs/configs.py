@@ -14,7 +14,8 @@ class EnvironmentSettings(BaseSettings):
     ENV : str = ""
     CELERY_BROKER_URL : str = "redis://localhost:6379"
     CELERY_RESULT_BACKEND : str = "redis://localhost:6379"
-    INTER_SERVICE_KEY : str = 'test'
+    API_KEY : str = 'test'
+    API_KEY_NAME : str = 'api_key'
 
 environmentSettings = EnvironmentSettings()
 

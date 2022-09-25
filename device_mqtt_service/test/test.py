@@ -5,7 +5,7 @@ import time
 from Crypto.Cipher import AES
 from os import urandom
 
-time.sleep(10)
+time.sleep(1)
 
 mqttBroker ="127.0.0.1"
 

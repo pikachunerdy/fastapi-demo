@@ -1,9 +1,12 @@
 from pydantic import BaseSettings
 
 class EnvironmentSettings(BaseSettings):
-    measurements_api : str = "http://localhost:8002/measurements"
+
+    DEVICE_SERVICE_URL : str = 'http://localhost:8002'
     ENV : str = ""
-    INTER_SERVICE_KEY : str = 'test'
+    MQTTBROKER = "127.0.0.1"
+    API_KEY : str = 'test'
+    API_KEY_NAME : str = 'api_key'
 
 
 environmentSettings = EnvironmentSettings()
@@ -11,3 +14,5 @@ environmentSettings = EnvironmentSettings()
 class Config:
     application_name : str = "company-account-service"
     version = "0.0.1"
+    measurements_api : str = "/measurements"
+    aes_api : str = '/aes_key'

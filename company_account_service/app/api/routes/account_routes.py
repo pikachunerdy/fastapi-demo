@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from pydantic.fields import Field
 import jwt
 
-from app.api.configs import environmentSettings
+from app.api.configs.configs import environmentSettings
 from app.api.exceptions.authentication_exception import InvalidPermissionException
 from app.api.main import app
 from app.api.models.account_models import AccountInfo, Accounts, RegisterAccount, ModifyAccount
