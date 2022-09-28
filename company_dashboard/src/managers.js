@@ -2,8 +2,8 @@ import { deviceListState, authState, selectedDeviceState, accountListState, sele
 import { getRecoil, setRecoil } from "recoil-nexus";
 
 
-var auth_link = "http://localhost:8000";
-var device_link = "http://localhost:8001";
+var auth_link = "https://company-account-service-ut624.ondigitalocean.app";
+var device_link = "https://company-device-service-wlyt3.ondigitalocean.app";
 
 
 
