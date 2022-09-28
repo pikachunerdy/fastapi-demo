@@ -55,7 +55,7 @@ async def main():
     payload = bytearray([0,hash_sum] + device_id + iv + message)
     # payload = str(payload, 'UTF-8')
     # print(type(payload))
-    request = Message(code=POST, payload=payload, uri="coap://localhost/measurements")
+    request = Message(code=POST, payload=payload, uri="coap://206.189.18.234/measurements")
     response = await context.request(request).response
 
     encoder = Encoder(ServerDeviceEncoding)
