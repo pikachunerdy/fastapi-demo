@@ -1,11 +1,11 @@
 '''Encodings for messages send from the device service to the sensors'''
 
-from libs.byte_encoder.encoder import TemplateBase
+from libs.byte_encoder.encoder import TemplateBase, TemplateInt, TemplateVarList
 
 class MeasurementEncoding(TemplateBase):
     '''Encoding for a sensor measurement'''
-    time = (int, 4)
-    distance = (int, 2)
+    time : int = TemplateInt(4)
+    distance : int = TemplateInt(2)
 
 class DeviceServerEncoding(TemplateBase):
     '''
@@ -24,15 +24,17 @@ class DeviceServerEncoding(TemplateBase):
         USE_ID = True
         ID_LENGTH = 4
         USE_ENCRYPTION = True
-        USE_IV = True
-    device_secret = (int, 4)
-    measurements = (list,MeasurementEncoding)
+    device_secret = TemplateInt(4)
+    measurements = TemplateVarList(MeasurementEncoding)
 
 class ServerDeviceEncoding(TemplateBase):
     '''Encoding for settings sent from device to sensor'''
-    message_wait_time_s = (int,3)
-    measurement_sleep_time_s = (int,3)
-    warning_distance_mm = (int,3)
-    warning_message_wait_time_s = (int,3)
-    warning_measurement_sleep_time_s = (int,3)
-    code_version = (int,2)
+    class Config(TemplateBase.Config):
+        '''Encoding Config'''
+        USE_ENCRYPTION = True
+    message_wait_time_s : int = TemplateInt(3)
+    measurement_sleep_time_s : int = TemplateInt(3)
+    warning_distance_mm : int = TemplateInt(3)
+    warning_message_wait_time_s : int = TemplateInt(3)
+    warning_measurement_sleep_time_s : int = TemplateInt(3)
+    code_version : int = TemplateInt(3)

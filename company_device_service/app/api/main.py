@@ -23,8 +23,6 @@ app = FastAPI(
 from app.api.routes.device_routes import *
 from app.api.routes.company_routes import *
 from app.api.routes.device_registration_routes import *
-if environmentSettings.ENV == "DEV":
-    from app.api.routes.test_routes import *
 
 origins = [
     "http://localhost",
@@ -48,14 +46,5 @@ def docs():
 @app.on_event("startup")
 async def app_init():
     client = motor.motor_asyncio.AsyncIOMotorClient(environmentSettings.mongo_database_url)
-    await init_beanie(database=client.db_name, document_models=[MongoDevice,MongoCompany])
-    # if environmentSettings.ENV == "DEV":
-    #     with open('env.env','r') as file:
-    #         first_load = file.read()
-
-    #     if first_load != 'false' or first_load is None:
-    #         await asyncio.sleep(25)
-    #         from app.api.routes.test_routes import create_device
-    #         await create_device()
-    #         with open('env.env','w') as file:
-    #             file.write('false')
+    await init_beanie(database=client['test'] if environmentSettings.ENV == 'DEV' else client['main'],
+    document_models=[MongoDevice,MongoCompany])

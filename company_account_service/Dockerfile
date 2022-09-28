@@ -1,11 +1,12 @@
 FROM python:3.10-slim
 
-COPY ./company-account-service/app /app
-COPY ./company-account-service/entrypoint.sh /entrypoint.sh
-COPY ./company-account-service/gunicorn.config.py /gunicorn.config.py
-COPY ./company-account-service/requirements.txt /requirements.txt
-COPY ./company-account-service/scripts /scripts
-COPY ./company-account-service/ca-certificate.crt /ca-certificate.crt
+COPY ./libs /libs
+COPY ./schemas /schemas
+COPY ./company_account_service/app /app
+COPY ./company_account_service/entrypoint.sh /entrypoint.sh
+COPY ./company_account_service/gunicorn.config.py /gunicorn.config.py
+COPY ./company_account_service/requirements.txt /requirements.txt
+COPY ./company_account_service/scripts /scripts
 
 RUN apt-get update && \
     apt-get install -y \

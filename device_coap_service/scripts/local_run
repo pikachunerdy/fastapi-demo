@@ -1,5 +1,4 @@
 #!/bin/bash
 export PYTHONPATH=$PYTHONPATH:../
 export ENV=DEV
-# python3 test/test.py &
 python3 main.py

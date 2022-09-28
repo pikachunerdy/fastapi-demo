@@ -18,18 +18,18 @@ from schemas.mongo_models.device_models import MongoDevice, GeoJson2DPoint, Mong
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 async def main():
-    client = motor.motor_asyncio.AsyncIOMotorClient('mongodb://localhost:27017/')
-    await init_beanie(database=client.db_name, document_models=[MongoCompany,MongoCompanyAccount, MongoDevice])
+    client = motor.motor_asyncio.AsyncIOMotorClient(os.environ['mongo_database_url'] )
+    await init_beanie(database=client['test'] if os.environ['ENV'] == 'DEV' else client['main'], document_models=[MongoCompany,MongoCompanyAccount, MongoDevice])
     print('making')
-    mongo_company = MongoCompany.construct()
-    mongo_company.name = 'test'
-    await mongo_company.save()
+    # mongo_company = MongoCompany.construct()
+    # mongo_company.name = 'test'
+    # await mongo_company.save()
 
-    mongo_account = MongoCompanyAccount.construct()
-    mongo_account.email = 'test'
-    mongo_account.password_hash = pwd_context.hash('test')
-    mongo_account.company_id = mongo_company.id
-    await mongo_account.save()
+    # mongo_account = MongoCompanyAccount.construct()
+    # mongo_account.email = 'test'
+    # mongo_account.password_hash = pwd_context.hash('test')
+    # mongo_account.company_id = mongo_company.id
+    # await mongo_account.save()
 
 
     company = await MongoCompany.find_one(MongoCompany.name == 'test')

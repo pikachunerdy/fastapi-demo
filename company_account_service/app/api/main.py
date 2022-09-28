@@ -30,8 +30,6 @@ app.add_middleware(
 
 from app.api.routes.account_routes import *
 from app.api.routes.authentication_routes import *
-if environmentSettings.ENV == "DEV":
-    from app.api.routes.test_routes import *
 
 # from app.api.sqlalchemy_models.models import Base
 
@@ -45,38 +43,12 @@ if environmentSettings.ENV == "DEV":
 
 @app.get('/')
 def docs():
+    '''Redirect to docs'''
     return RedirectResponse('/docs')
 
-# @app.on_event("startup")
-# async def startup():
-#     if environmentSettings.ENV == "DEV":
-#         import os
-#         dir_path = os.path.dirname(os.path.realpath(__file__))
-#         with open('env.env','r') as file:
-#             first_load = file.read()
-
-#         if first_load != 'false' or first_load is None:
-#             with open('env.env','w') as file:
-#                 file.write('false')
-#             await asyncio.sleep(15)
-#             async with engine.begin() as conn:
-#                 await conn.run_sync(metadata.drop_all)
-#                 await conn.run_sync(metadata.create_all)
-#             from app.api.routes.test_routes import get_create_user
-#             await get_create_user()
 
 @app.on_event("startup")
 async def app_init():
+    '''App start up code'''
     client = motor.motor_asyncio.AsyncIOMotorClient(environmentSettings.mongo_database_url)
-    await init_beanie(database=client.db_name, document_models=[MongoCompany,MongoCompanyAccount])
-    # if environmentSettings.ENV == "DEV":
-    #     with open('env.env','r') as file:
-    #         first_load = file.read()
-
-    #     if first_load != 'false' or first_load is None:
-    #         print('About to create')
-    #         await asyncio.sleep(15)
-    #         from app.api.routes.test_routes import get_create_user
-    #         await get_create_user()
-    #         with open('env.env','w') as file:
-    #             file.write('false')
+    await init_beanie(database=client['test'] if environmentSettings.ENV == 'DEV' else client['main'], document_models=[MongoCompany,MongoCompanyAccount])

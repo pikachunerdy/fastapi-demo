@@ -47,7 +47,7 @@ class MeasurementsHandler(resource.Resource):
     '''
 
     @staticmethod
-    def decode_measurement(payload_bytes: bytes) -> tuple[DeviceServerMessage, bytes, int]:
+    def decode_measurement(payload_bytes: bytes) -> tuple[DeviceServerMessage, bytes]:
         '''Convert coap bytes to DeviceServer Message'''
         encoder = Encoder(DeviceServerEncoding)
         if not encoder.validate_header(payload_bytes):
@@ -59,26 +59,25 @@ class MeasurementsHandler(resource.Resource):
              Config.aes_api + '?device_id=' + str(device_id)),
             headers={environmentSettings.API_KEY_NAME: environmentSettings.API_KEY, })
         aes_key = aes_key.content
-        payload_bytes = encoder.decrypt(payload_bytes, aes_key)
+        # payload_bytes = encoder.decrypt(payload_bytes, aes_key)
         device_server_encoding: DeviceServerEncoding = encoder.decode_bytes(
-            payload_bytes)
+            payload_bytes, encryption_key=aes_key)
         device_server_message.device_id = device_id
         device_server_message.device_secret = device_server_encoding.device_secret
         device_server_message.measurements = Measurements.construct()
         device_server_message.measurements.time_s = []
         device_server_message.measurements.distance_mm = []
-        # print(device_server_encoding.measurements)
         for measurement in device_server_encoding.measurements:
             device_server_message.measurements.time_s.append(measurement.time)
             device_server_message.measurements.distance_mm.append(
                 measurement.distance)
-        # print(payload)
-        return device_server_message, aes_key, device_id
+        return device_server_message, aes_key
 
     async def render_post(self, request):
         '''Response to a post request'''
         # try:
-        device_server_message, aes_key, device_id = MeasurementsHandler.decode_measurement(
+        print('received message')
+        device_server_message, aes_key = MeasurementsHandler.decode_measurement(
             request.payload)
         response = requests.post(
             (environmentSettings.DEVICE_SERVICE_URL + Config.measurements_api),
@@ -95,10 +94,8 @@ class MeasurementsHandler(resource.Resource):
         # print(response.content)
         # print(response.json())
         encoder = Encoder(ServerDeviceEncoding)
-        print(encoded_settings.message_wait_time_s)
-        payload = encoder.encode_bytes(encoded_settings, key=aes_key)
-        decoded_payload = encoder.decode_bytes(payload, key = aes_key)
-        print(decoded_payload.message_wait_time_s)
+        payload = encoder.encode_bytes(encoded_settings, encryption_key=aes_key)
+        decoded_payload = encoder.decode_bytes(payload, encryption_key = aes_key)
         return aiocoap.Message(
             payload=payload)
         # except Exception:

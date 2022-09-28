@@ -6,10 +6,7 @@ cd ./company_device_service/
 sudo ./scripts/local_run &
 cd ../
 cd ./device_service
-sudo ./scripts/local_run
-# cd ../
-# sleep 30
-# cd ./device_mqtt_service
-# sudo ./scripts/local_run
-# sudo pkill python3
-# sudo pkill uvicorn
+sudo ./scripts/local_run &
+cd ..
+cd ./device_coap_service
+./scripts/local_run
