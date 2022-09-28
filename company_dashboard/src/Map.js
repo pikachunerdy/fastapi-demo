@@ -12,8 +12,8 @@ var mapStyles = {
 
 export default class MapContainer extends Component {
   componentDidMount() {
-    document.getElementById("mapID").firstChild.firstChild.firstChild.style.width = "0px";
-    document.getElementById("mapID").firstChild.firstChild.firstChild.style.height = "0px";    // set el height and width etc.
+    // document.getElementById("mapID").firstChild.firstChild.firstChild.style.width = "0px";
+    // document.getElementById("mapID").firstChild.firstChild.firstChild.style.height = "0px";    // set el height and width etc.
   };
   render() {
     mapStyles = {
