@@ -18,6 +18,7 @@ def decode_measurement(payload_bytes: bytes) -> DeviceServerMessage:
     encoder = Encoder(DeviceServerEncoding)
     if not encoder.validate_header(payload_bytes):
         raise Exception
+
     device_server_message = DeviceServerMessage.construct()
     device_id = encoder.get_id(payload_bytes)
     aes_key = requests.get(

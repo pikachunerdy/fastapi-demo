@@ -49,13 +49,13 @@ def docs():
 async def app_init():
     client = motor.motor_asyncio.AsyncIOMotorClient(environmentSettings.mongo_database_url)
     await init_beanie(database=client.db_name, document_models=[MongoDevice,MongoCompany])
-    if environmentSettings.ENV == "DEV":
-        with open('env.env','r') as file:
-            first_load = file.read()
+    # if environmentSettings.ENV == "DEV":
+    #     with open('env.env','r') as file:
+    #         first_load = file.read()
 
-        if first_load != 'false' or first_load is None:
-            await asyncio.sleep(15)
-            from app.api.routes.test_routes import create_device
-            await create_device()
-            with open('env.env','w') as file:
-                file.write('false')
+    #     if first_load != 'false' or first_load is None:
+    #         await asyncio.sleep(25)
+    #         from app.api.routes.test_routes import create_device
+    #         await create_device()
+    #         with open('env.env','w') as file:
+    #             file.write('false')

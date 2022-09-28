@@ -99,6 +99,7 @@ class DeviceHandler:
     async def get_devices(device_filter : DeviceSearchFilter, company_id : str) -> Devices:
         # company_id = int(company_id)
         mongo_devices = MongoDevice.find(MongoDevice.company_id == PydanticObjectId(company_id))
+        print('hello')
         print(company_id)
         mongo_company = await MongoCompany.get(PydanticObjectId(company_id))
         if mongo_company is None:

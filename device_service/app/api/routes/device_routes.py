@@ -44,11 +44,12 @@ async def post_measurements(
 
 
     response = Settings.construct()
-    response.sleep_time_s = mongo_device.sleep_time_s
-    response.transmit_time_s = mongo_device.transmit_time_s
+    response.measurement_sleep_time_s = mongo_device.device_settings.measurement_sleep_time_s
+    response.message_wait_time_s = mongo_device.device_settings.message_wait_time_s
     # sends a task request to process average task updates
     await process_average_measurements_task(message.device_id)
     return response
+
 
 # @app.get('/settings', tags=['Measurements'])
 # async def

@@ -64,6 +64,7 @@ async def delete_company_label(label : str, tokenData : TokenData = Depends(toke
 @app.get('/company/labels', tags=['Company'], response_model=list[str])
 async def get_labels(tokenData : TokenData = Depends(token_authentication)) -> list[str]:
     company_id = tokenData.company_id
+    print(company_id)
     company = await MongoCompany.get(company_id)
     if company is None:
         raise Exception

@@ -7,6 +7,9 @@ import math
 from os import urandom
 from Crypto.Cipher import AES
 
+from schemas.encodings.device_server_encoding import ServerDeviceEncoding
+from libs.byte_encoder.encoder import Encoder
+
 
 async def main():
     """Perform a single PUT request to localhost on the default port, URI
@@ -54,7 +57,14 @@ async def main():
     # print(type(payload))
     request = Message(code=POST, payload=payload, uri="coap://localhost/measurements")
     response = await context.request(request).response
+    print(response.payload)
 
+    encoder = Encoder(ServerDeviceEncoding)
+    aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
+    device_id = 10
+    response = encoder.decode_bytes(response.payload, key = aes_key)
+    print(response.message_wait_time_s)
+    print(response.measurement_sleep_time_s)
     # print('Result: %s\n%r'%(response.code, response.payload))
 
 if __name__ == "__main__":
