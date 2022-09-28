@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from app.api.configs.configs import Config, environmentSettings
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-import asyncio
-import os
+from fastapi.openapi.docs import (
+    get_swagger_ui_html,
+)
 import motor
 from beanie import init_beanie
 from schemas.mongo_models.account_models import MongoCompany, MongoCompanyAccount
@@ -45,6 +46,15 @@ from app.api.routes.authentication_routes import *
 def docs():
     '''Redirect to docs'''
     return RedirectResponse('/docs')
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html(req):
+    root_path = req.scope.get("root_path", "").rstrip("/")
+    openapi_url = root_path + app.openapi_url
+    return get_swagger_ui_html(
+        openapi_url=openapi_url,
+        title="API",
+    )
 
 
 @app.on_event("startup")
