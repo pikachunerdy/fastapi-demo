@@ -3,6 +3,6 @@ services:
   web:
     build:
       context: ../
-      dockerfile: ./company_account_service/Dockerfile
+      dockerfile: ./company_account_service/DockerfileTesting
     ports:
       - "8000:8000"
