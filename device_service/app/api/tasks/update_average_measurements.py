@@ -7,14 +7,12 @@ from schemas.mongo_models.device_models import MongoDevice, MongoDeviceDataEntry
 
 async def process_average_measurements(device_id: int):
     '''Find the daily, weekly, monthly and yearly sensor data'''
-    total_measurements_per_period = 24*4
+    total_measurements_per_period = 24*8
 
     def average_list(data: list[MongoDeviceDataEntry]):
 
         measurements = []
         chunk_size = int(len(data) / total_measurements_per_period)
-        print('len', len(data))
-        print('chunk size', chunk_size)
         chunk_size = chunk_size if chunk_size > 0 else 1
         chunks = [data[x:x+chunk_size]
                   for x in range(0, len(data), chunk_size)]

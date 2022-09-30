@@ -33,9 +33,9 @@ async def main():
 
 
     company = await MongoCompany.find_one(MongoCompany.name == 'test')
-    company.labels = {
-    }
-    await company.save()
+    # company.labels = {
+    # }
+    # await company.save()
 
     device : MongoDevice = MongoDevice.construct()
     device.device_id = 10
@@ -56,38 +56,41 @@ async def main():
     device.creation_date = int(time.time())
     device.location = GeoJson2DPoint(coordinates=(51.500,-0.1743))
     device.warning_level = 5
-    device.warning_level_height_mm  = 50
+    device.warning_level_percentage  = 50
     device.installation_comment = ''
     device.comments = ''
     device.pinned = False
     await device.save()
     print(device)
 
-    device = MongoDevice.construct()
-    device.device_id = 20
-    device.device_secret = 30
-    device.aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
-    device.data = []
-    device.past_day_data = []
-    device.past_week_data = []
-    device.past_month_data = []
-    device.past_year_data = []
-    date = int(time.time()) - 24*60*60
-    for i in range(24*2):
-        entry = MongoDeviceDataEntry.construct()
-        entry.time_s = date + i*30*60
-        entry.distance_mm = 50 * math.sin(i*math.pi*2/24)
-        device.past_day_data.append(entry)
-    device.company_id = company.id
-    device.creation_date = int(time.time())
-    device.location = GeoJson2DPoint(coordinates=(51.498,-0.1832))
-    device.warning_level = 5
-    device.warning_level_height_mm  = 50
-    device.installation_comment = ''
-    device.comments = ''
-    device.pinned = False
-    await device.save()
-    print('made')
+    for i in range(20):
+        i = i * 10 + 50
+        device : MongoDevice = MongoDevice.construct()
+        device.device_id = i
+        device.device_secret = 30
+        device.aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
+        device.data = []
+        device.past_day_data = []
+        device.past_week_data = []
+        device.past_month_data = []
+        device.past_year_data = []
+        date = int(time.time()) - 24*60*60
+        for i in range(24*2):
+            entry = MongoDeviceDataEntry.construct()
+            entry.time_s = date + i*30*60
+            entry.distance_mm = 50 * math.sin(i*math.pi*2/24)
+            device.past_day_data.append(entry)
+        device.company_id = company.id
+        device.creation_date = int(time.time())
+        device.location = GeoJson2DPoint(coordinates=(51.498,-0.1832))
+        device.warning_level = 5
+        device.setup_complete = True
+        device.warning_level_percentage  = 50
+        device.installation_comment = ''
+        device.comments = ''
+        device.pinned = False
+        await device.save()
+        print('made')
 
 
 asyncio.run(main())

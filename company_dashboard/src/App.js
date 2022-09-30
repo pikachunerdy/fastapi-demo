@@ -627,7 +627,7 @@ const DeviceInfoPanel = (args) => {
   if (!(deviceID === selectedDevice.device_id)) {
     setDeviceID(selectedDevice.device_id);
     setCommentText(selectedDevice.comments);
-    setWarningLevel(selectedDevice.warning_level_height_mm);
+    setWarningLevel(selectedDevice.warning_level_percentage);
     setCommentChanged(false);
     setWarningLevelChanged(false);
   }
@@ -736,7 +736,7 @@ const DeviceInfoPanel = (args) => {
         </CardText>
         {warningLevelChanged ? <Button className={css(deviceInfoPanelStyles.comment_button_styles)}
           onClick={() => {
-            device_list_manager.change_device_warning_level_height(selectedDevice.device_id, warningLevel);
+            device_list_manager.change_device_warning_level_percentage(selectedDevice.device_id, warningLevel);
             setWarningLevelChanged(false);
           }}>
           Save
@@ -747,7 +747,7 @@ const DeviceInfoPanel = (args) => {
         </CardText>
         {/* warning level */}
         <CardText className={css(deviceInfoPanelStyles.text_style)}>
-          Warning Level: {selectedDevice.warning_level}
+          Warning Level: {selectedDevice.warning_level ? 'High' : 'Low'}
         </CardText>
         <CardText className={css(deviceInfoPanelStyles.text_style)}>Comments: </CardText>
         {/* comments */}

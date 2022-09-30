@@ -59,6 +59,7 @@ class MeasurementsHandler(resource.Resource):
              Config.aes_api + '?device_id=' + str(device_id)),
             headers={environmentSettings.API_KEY_NAME: environmentSettings.API_KEY, })
         aes_key = aes_key.content
+        print(aes_key)
         # payload_bytes = encoder.decrypt(payload_bytes, aes_key)
         device_server_encoding: DeviceServerEncoding = encoder.decode_bytes(
             payload_bytes, encryption_key=aes_key)

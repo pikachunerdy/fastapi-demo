@@ -3,6 +3,7 @@ import asyncio
 import time
 import math
 from os import urandom
+import os
 
 from aiocoap import *
 from Crypto.Cipher import AES
@@ -55,9 +56,10 @@ async def main():
     payload = bytearray([0,hash_sum] + device_id + iv + message)
     # payload = str(payload, 'UTF-8')
     # print(type(payload))
-    request = Message(code=POST, payload=payload, uri="coap://206.189.18.234/measurements")
+    url = "coap://206.189.18.234/measurements" if os.environ['ENV'] != 'DEV' else "coap://localhost/measurements"
+    request = Message(code=POST, payload=payload, uri=url)
     response = await context.request(request).response
-
+    print(response.payload)
     encoder = Encoder(ServerDeviceEncoding)
     aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
     device_id = 10

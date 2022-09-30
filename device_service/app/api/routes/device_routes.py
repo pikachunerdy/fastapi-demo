@@ -1,13 +1,15 @@
 '''Routes for communicating device information'''
 from fastapi.param_functions import Body, Depends
 from fastapi import Response
-from app.api.main import app
-from app.api.tasks.update_average_measurements import process_average_measurements_task
 
 from libs.authentication.inter_service_auth import validate_api_key
 from schemas.request_models.device_service.device_measurements import DeviceServerMessage
 from schemas.request_models.device_service.device_settings import Settings
 from schemas.mongo_models.device_models import MongoDevice, MongoDeviceDataEntry
+
+from app.api.main import app
+from app.api.tasks.update_average_measurements import process_average_measurements_task
+from device_service.app.api.tasks.process_device_stats import process_device_stats_task
 
 
 @app.get('/aes_key', response_model=bytes, tags=['key'])
@@ -16,9 +18,7 @@ async def get_aes_key(device_id: int, _= Depends(validate_api_key)) -> bytes:
     mongo_device = await MongoDevice.find(MongoDevice.device_id == device_id).first_or_none()
     if mongo_device is None:
         raise Exception()
-    print(mongo_device.aes_key)
     return Response(content=mongo_device.aes_key)
-    # return mongo_device.aes_key.decode()
 
 
 @app.post('/measurements', tags=["Measurements"])
@@ -40,7 +40,6 @@ async def post_measurements(
         mongo_device.data.append(entry)
 
     await mongo_device.save()
-    # mongo_device = await MongoDevice.find(MongoDevice.device_id == message.device_id).first_or_none()
 
 
     response = Settings.construct()
@@ -48,8 +47,5 @@ async def post_measurements(
     response.message_wait_time_s = mongo_device.device_settings.message_wait_time_s
     # sends a task request to process average task updates
     await process_average_measurements_task(message.device_id)
+    await process_device_stats_task(message.device_id)
     return response
-
-
-# @app.get('/settings', tags=['Measurements'])
-# async def

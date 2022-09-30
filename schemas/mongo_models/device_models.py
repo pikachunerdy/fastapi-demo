@@ -44,9 +44,16 @@ class MongoDevice(Document):
     creation_date : int
     location : GeoJson2DPoint
 
-    warning_level : int
-    warning_level_height_mm : int
+    # 10 if above warning level percentage
+    # 0 if below warning level percentage
+    warning_level : int = 0
+    warning_level_percentage: int = 0
+    current_level_percentage: int = 0
+    # set by the installer
     max_distance_mm : int = 2000
+    # set to true on completion of setup
+    setup_complete : bool = False
+
 
     # any comments made at the point of installation
     installation_comment : str = ''

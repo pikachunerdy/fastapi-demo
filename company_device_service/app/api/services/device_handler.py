@@ -25,7 +25,7 @@ def mongo_device_to_device_data(mongo_device : MongoDevice, mongo_company : Mong
     device : DeviceData = DeviceData.construct()
     device.creation_date = mongo_device.creation_date
     device.warning_level = str(mongo_device.warning_level)
-    device.warning_level_height_mm = mongo_device.warning_level_height_mm
+    device.warning_level_percentage = mongo_device.warning_level_percentage
 
     if measurement_period_type == 'all':
         device.measurements = [Measurement(time_s = unix_to_date(measurement.time_s, use_date=True), distance_mm = measurement.distance_mm) for measurement in mongo_device.data]
@@ -58,7 +58,7 @@ def mongo_device_to_device_info(mongo_device : MongoDevice, mongo_company : Mong
     device_info.longitude = mongo_device.location.coordinates[1]
     device_info.creation_date = mongo_device.creation_date
     device_info.warning_level = str(mongo_device.warning_level)
-    device_info.warning_level_height_mm = mongo_device.warning_level_height_mm
+    device_info.warning_level_percentage = mongo_device.warning_level_percentage
     device_info.device_id = str(mongo_device.device_id)
     device_info.pinned = mongo_device.pinned
     device_info.installation_comment = mongo_device.installation_comment
@@ -135,7 +135,7 @@ class DeviceHandler:
 
     async def modify(self, new_device : Device) -> DeviceInfo:
         self._mongo_device.comments = new_device.comments
-        self._mongo_device.warning_level_height_mm = new_device.warning_level_height_mm
+        self._mongo_device.warning_level_percentage = new_device.warning_level_percentage
         self._mongo_device.pinned = new_device.pinned
         self._mongo_device.location = GeoJson2DPoint(coordinates=(new_device.latitude, new_device.longitude))
         await self._mongo_device.save()

@@ -4,8 +4,8 @@ import { getRecoil, setRecoil } from "recoil-nexus";
 
 var auth_link = "https://company-account-service-ut624.ondigitalocean.app";
 var device_link = "https://company-device-service-wlyt3.ondigitalocean.app";
-
-
+// var auth_link = "http://localhost:8000"
+// var device_link = "http://localhost:8001"
 
 export var auth_manager = {
   get_auth_key: async function (username, password, callback = () => { }) {
@@ -278,7 +278,7 @@ export var device_list_manager = {
       });
   },
 
-  change_device_warning_level_height: function (device_id, warning_level_height, callback = () => { }) {
+  change_device_warning_level_percentage: function (device_id, warning_level_percentage, callback = () => { }) {
     var obj = {
       link: device_link + '/device?' + new URLSearchParams({
         device_id: device_id,
@@ -296,7 +296,7 @@ export var device_list_manager = {
     fetch(obj.link, obj.object)
       .then(response => response.json())
       .then(device => {
-        device.warning_level_height_mm = warning_level_height;
+        device.warning_level_percentage = warning_level_percentage;
         var obj = {
           link: device_link + '/device',
           object: {

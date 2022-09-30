@@ -15,7 +15,7 @@ class Device(BaseModel):
     device_id : str
     latitude : float
     longitude : float
-    warning_level_height_mm : int
+    warning_level_percentage : int
     comments : str = ''
     pinned : bool
 
