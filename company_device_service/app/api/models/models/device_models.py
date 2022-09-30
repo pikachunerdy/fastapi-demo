@@ -22,7 +22,10 @@ class Device(BaseModel):
 
 class DeviceInfo(Device):
     creation_date : int = Field(description="creation date in unix time seconds")
-    warning_level : str
+    warning_level : int
+    max_distance_mm : int
+    current_level_percentage : int
+    battery_percentage: int
     installation_comment : str
     labels : list[str]
 

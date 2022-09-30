@@ -1,4 +1,12 @@
 #!/bin/bash
+cp -r ../schemas ./schemas
+
+rm -r ./libs 2> /dev/null
+cp -r ../libs ./libs
+
 export PYTHONPATH=$PYTHONPATH:../
 export ENV=DEV
 python3 main.py
+
+rm -r ./libs 2> /dev/null
+rm -r ./schemas 2> /dev/null

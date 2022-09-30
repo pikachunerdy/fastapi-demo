@@ -47,6 +47,9 @@ def mongo_device_to_device_data(mongo_device : MongoDevice, mongo_company : Mong
     device.pinned = mongo_device.pinned
     device.measurement_period_type = measurement_period_type
     device.labels = []
+    device.battery_percentage = mongo_device.battery_percentage
+    device.current_level_percentage = mongo_device.current_level_percentage
+    device.max_distance_mm = mongo_device.max_distance_mm
     for label, labeled_devices in mongo_company.labels.items():
         if mongo_device.id in labeled_devices:
             device.labels.append(label)
@@ -64,6 +67,9 @@ def mongo_device_to_device_info(mongo_device : MongoDevice, mongo_company : Mong
     device_info.installation_comment = mongo_device.installation_comment
     device_info.comments = mongo_device.comments
     device_info.labels = []
+    device_info.battery_percentage = mongo_device.battery_percentage
+    device_info.current_level_percentage = mongo_device.current_level_percentage
+    device_info.max_distance_mm = mongo_device.max_distance_mm
     for label, labeled_devices in mongo_company.labels.items():
         if mongo_device.id in labeled_devices:
             device_info.labels.append(label)

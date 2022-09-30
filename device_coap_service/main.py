@@ -65,6 +65,7 @@ class MeasurementsHandler(resource.Resource):
             payload_bytes, encryption_key=aes_key)
         device_server_message.device_id = device_id
         device_server_message.device_secret = device_server_encoding.device_secret
+        device_server_message.battery_percentage = device_server_encoding.batter_percentage
         device_server_message.measurements = Measurements.construct()
         device_server_message.measurements.time_s = []
         device_server_message.measurements.distance_mm = []

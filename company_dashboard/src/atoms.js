@@ -7,6 +7,7 @@ export const filterState = atom({
     key: 'filterState',
     default : {
         pinned : false,
+        searchText : '',
         labels : []
     },
     effects: [
@@ -16,10 +17,18 @@ export const filterState = atom({
       ],
 })
 
+export const mapState = atom({
+    key: 'mapState',
+    default : {
+        requested_centre : [0,0],
+        required_update : false
+    }
+})
+
 export const deviceListState = atom({
     key: 'deviceListState', // unique ID (with respect to other atoms/selectors)
     default: {
-        devices : []
+        devices : [],
     }, // default value (aka initial value)
 });
 
@@ -67,4 +76,10 @@ export const panelSizes = atom({
         vLeft : 0,
         vRight : 0
     }
+})
+
+
+export const navStateAtom = atom({
+    key : 'navState',
+    default : 'device-metrics'
 })

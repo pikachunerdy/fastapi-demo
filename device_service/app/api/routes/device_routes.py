@@ -25,7 +25,7 @@ async def get_aes_key(device_id: int, _= Depends(validate_api_key)) -> bytes:
 async def post_measurements(
         message: DeviceServerMessage = Body(...), _=Depends(validate_api_key)):
     '''Receive device measurements, must be authenticated with device secret'''
-    mongo_device = await MongoDevice.find(
+    mongo_device : MongoDevice = await MongoDevice.find(
         MongoDevice.device_id == message.device_id
     ).first_or_none()
     if mongo_device is None:
@@ -39,6 +39,7 @@ async def post_measurements(
         entry = MongoDeviceDataEntry(time_s=time_s, distance_mm=distance_mm)
         mongo_device.data.append(entry)
 
+    mongo_device.battery_percentage = message.battery_percentage
     await mongo_device.save()
 
 

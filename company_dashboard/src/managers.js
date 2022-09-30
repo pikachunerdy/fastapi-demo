@@ -1,11 +1,11 @@
-import { deviceListState, authState, selectedDeviceState, accountListState, selectedAccountState, companyState, filterState } from './atoms.js';
+import { deviceListState, authState, selectedDeviceState, accountListState, selectedAccountState, companyState, filterState, mapState, navStateAtom } from './atoms.js';
 import { getRecoil, setRecoil } from "recoil-nexus";
 
 
-var auth_link = "https://company-account-service-ut624.ondigitalocean.app";
-var device_link = "https://company-device-service-wlyt3.ondigitalocean.app";
-// var auth_link = "http://localhost:8000"
-// var device_link = "http://localhost:8001"
+// var auth_link = "https://company-account-service-ut624.ondigitalocean.app";
+// var device_link = "https://company-device-service-wlyt3.ondigitalocean.app";
+var auth_link = "http://localhost:8000"
+var device_link = "http://localhost:8001"
 
 export var auth_manager = {
   get_auth_key: async function (username, password, callback = () => { }) {
@@ -21,7 +21,7 @@ export var auth_manager = {
       }
     }
     var response = await fetch(obj.link, obj.object).then(response => {
-      console.log('response')
+      // console.log('response')
       if (!response.ok) {
         alert("Invalid Credentials");
         setRecoil(authState, { token: '', validToken: false, showInvalidCredWarning: true });
@@ -29,12 +29,12 @@ export var auth_manager = {
       }
       return response.json()
     }).then(response => {
-      console.log(response)
+      // console.log(response)
       setRecoil(authState, {
         token: response.access_token, validToken: true, showInvalidCredWarning: false
       });
       localStorage.setItem('token', response.access_token);
-      console.log(response.access_token)
+      // console.log(response.access_token)
       callback();
     })
   },
@@ -181,7 +181,7 @@ export var device_list_manager = {
     // console.log(obj);
     await fetch(obj.link, obj.object)
       .then(response => response.json())
-      .then((response) => {console.log(response); return response})
+      // .then((response) => {console.log(response); return response})
       .then(data => setRecoil(deviceListState, data))
       .then(callback());
   },
@@ -202,7 +202,8 @@ export var device_list_manager = {
     };
    await fetch(obj.link, obj.object)
       .then(response => response.json())
-      .then(data => { setRecoil(selectedDeviceState, data) });
+      .then(data => { setRecoil(selectedDeviceState, data); return data;})
+      .then(data => {setRecoil(mapState, {requested_centre : [data.longitude, data.latitude], required_update : true})});
     // .then(console.log(getRecoil(selectedDeviceState)))
   },
 

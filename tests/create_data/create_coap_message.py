@@ -47,7 +47,7 @@ async def main():
 
     iv=urandom(16)
     cipher = AES.new(b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92', AES.MODE_CFB, IV=iv)
-    byte_array = bytearray(device_secret + num_measurements  + measurements)
+    byte_array = bytearray(device_secret + [90] + num_measurements  + measurements)
     message = cipher.encrypt(byte_array)
     iv = [int(x) for x in iv]
     message = [int(x) for x in message]

@@ -10,8 +10,8 @@ async def process_device_stats(device_id: int):
     mongo_device: MongoDevice = await MongoDevice.find(MongoDevice.device_id == device_id).first_or_none()
     last_measurement = mongo_device.data[-1].distance_mm
     distance_percentage = last_measurement / mongo_device.max_distance_mm
-    mongo_device.warning_level = 10 if distance_percentage < mongo_device.warning_level_percentage else 0
-    mongo_device.current_level_percentage = distance_percentage
+    mongo_device.current_level_percentage = 100 - distance_percentage
+    mongo_device.warning_level = 0 if mongo_device.current_level_percentage < mongo_device.warning_level_percentage else 10
     await mongo_device.save()
 
 

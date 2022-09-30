@@ -7,7 +7,7 @@ import {
   useRecoilValue,
   useSetRecoilState,
 } from 'recoil';
-import { deviceListState, authState, panelSizes, selectedDeviceState, accountListState, selectedAccountState, companyState, filterState } from './atoms.js';
+import { deviceListState, authState, panelSizes, selectedDeviceState, accountListState, selectedAccountState, companyState, filterState, navStateAtom } from './atoms.js';
 import { getRecoil, setRecoil } from "recoil-nexus";
 import {
   TabContent,
@@ -313,7 +313,7 @@ const DeviceListComponent = (args) => {
     <CardHeader className={css(deviceListComponentStyles.header_styles)}>
       <CardText className={css(deviceListComponentStyles.header_text_style)}>Devices</CardText>
       <Input className={css(deviceListComponentStyles.search_style)} placeholder="Search Devices"
-        value={deviceSearchText} onChange={(event) => setDeviceSearchText(event.target.value)} ></Input>
+        value={filter.searchText} onChange={(event) => setFilterState({...filter, searchText: event.target.value})} ></Input>
       <Button className={css(filter.pinned ? deviceListComponentStyles.filter_button_styles : deviceListComponentStyles.disabled_filter_style)}
         onClick={() => setFilterState({ ...filter, pinned: !filter.pinned })}>Filter Pinned</Button>
       <UncontrolledDropdown className={css(deviceListComponentStyles.drop_down_style)}>
@@ -367,7 +367,7 @@ const DeviceListComponent = (args) => {
     </CardHeader>
     <CardBody className={css(deviceListComponentStyles.card_body_style)}>
       {
-        deviceList.devices.filter(device => device.device_id.toLowerCase().includes(deviceSearchText.toLowerCase()))
+        deviceList.devices.filter(device => device.device_id.toLowerCase().includes(filter.searchText.toLowerCase()))
           .filter(device => device.pinned || !filter.pinned)
           .map((device) => {
             return <>
@@ -728,10 +728,10 @@ const DeviceInfoPanel = (args) => {
             </DropdownItem>
           </DropdownMenu>
         </UncontrolledDropdown>
-        {/* warning level height */}
+        {/* warning level percentage */}
         <CardText className={css(deviceInfoPanelStyles.text_style)}>
-          Warning Level Height: <input className={css(deviceInfoPanelStyles.warning_level_style)} value={warningLevel} onChange={(event) => {
-            setWarningLevel(event.target.value); setWarningLevelChanged(true);
+          Percentage fill to warn: <input className={css(deviceInfoPanelStyles.warning_level_style)} value={warningLevel + '%'} onChange={(event) => {
+            setWarningLevel(event.target.value.slice(0, event.target.value.length - 1)); setWarningLevelChanged(true);
           }}></input>
         </CardText>
         {warningLevelChanged ? <Button className={css(deviceInfoPanelStyles.comment_button_styles)}
@@ -749,8 +749,16 @@ const DeviceInfoPanel = (args) => {
         <CardText className={css(deviceInfoPanelStyles.text_style)}>
           Warning Level: {selectedDevice.warning_level ? 'High' : 'Low'}
         </CardText>
-        <CardText className={css(deviceInfoPanelStyles.text_style)}>Comments: </CardText>
+        {/* fill percentage */}
+        <CardText className={css(deviceInfoPanelStyles.text_style)}>
+          Fill Percentage: {selectedDevice.current_level_percentage}
+        </CardText>
+        {/* battery percentage */}
+        <CardText className={css(deviceInfoPanelStyles.text_style)}>
+          Battery Percentage: {selectedDevice.battery_percentage}
+        </CardText>
         {/* comments */}
+        <CardText className={css(deviceInfoPanelStyles.text_style)}>Comments: </CardText>
         <div style={{ width: '100%', paddingRight: 7 }}>
           <textarea id='commentTextAreaBlockInfo' className={css(deviceInfoPanelStyles.comments_style)} value={commentText} onChange={(event) => { setCommentChanged(!(event.target.value === selectedDevice.comments)); setCommentText(event.target.value); }} ref={text_area}></textarea>
         </div>
@@ -1159,8 +1167,8 @@ const appStyles = StyleSheet.create({
 });
 
 const MainPage = props => {
-  const [navState, setNavState] = useState('device-metrics');
-
+  // const [navState, setNavState] = useState('device-metrics');
+  const [navState, setNavState] = useRecoilState(navStateAtom);
   const vh =
     Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0) -
     sizes.header;
