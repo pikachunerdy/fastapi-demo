@@ -24,4 +24,4 @@ RUN apt-get update && \
 
 RUN chmod +x entrypoint.sh
 
-CMD [ "entrypoint.sh" ]
+CMD [ "./entrypoint.sh" ]
