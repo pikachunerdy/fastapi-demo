@@ -7,6 +7,7 @@ COPY ./device_coap_service/scripts ./scripts
 COPY ./device_coap_service/configs ./configs
 COPY ./device_coap_service/main.py ./main.py
 COPY ./device_coap_service/requirements.txt ./requirements.txt
+COPY ./device_coap_service/entrypoint.sh ./entrypoint.sh
 
 RUN apt-get update && \
     apt-get install -y \
@@ -21,4 +22,6 @@ RUN apt-get update && \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
-CMD [ "python3 main.py" ]
+RUN chmod +x entrypoint.sh
+
+CMD [ "entrypoint.sh" ]
