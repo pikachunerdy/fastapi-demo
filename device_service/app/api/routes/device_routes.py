@@ -9,7 +9,7 @@ from schemas.mongo_models.device_models import MongoDevice, MongoDeviceDataEntry
 
 from app.api.main import app
 from app.api.tasks.update_average_measurements import process_average_measurements_task
-from device_service.app.api.tasks.process_device_stats import process_device_stats_task
+from app.api.tasks.process_device_stats import process_device_stats_task
 
 
 @app.get('/aes_key', response_model=bytes, tags=['key'])
