@@ -1206,7 +1206,7 @@ const FilterStateComponent = props => {
 
 function App() {
   const auth = useRecoilValue(authState);
-
+  console.log(process.env.REACT_APP_DEVICE_API_URL)
   if (!auth.validToken) {
     auth_manager.check_token();
   }

@@ -6,8 +6,8 @@ import { getRecoil, setRecoil } from "recoil-nexus";
 // var device_link = "https://company-device-service-wlyt3.ondigitalocean.app";
 // var auth_link = 'https://sea-lion-app-6pic4.ondigitalocean.app';
 // var device_link = 'https://urchin-app-iez45.ondigitalocean.app';
-var auth_link = process.env.AUTH_API_URL;
-var device_link = process.env.DEVICE_API_URL;
+var auth_link = process.env.REACT_APP_AUTH_API_URL;
+var device_link = process.env.REACT_APP_DEVICE_API_URL;
 
 export var auth_manager = {
   get_auth_key: async function (username, password, callback = () => { }) {
