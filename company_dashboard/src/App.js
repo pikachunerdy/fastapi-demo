@@ -1132,7 +1132,7 @@ const appStyles = StyleSheet.create({
   },
   nav_button_styles: {
     display: 'inline-block',
-    float: 'right',
+    float: 'left',
     borderColor: '#aad8e2',
     paddingTop: 0,
     paddingBottom: 0,
@@ -1145,13 +1145,14 @@ const appStyles = StyleSheet.create({
     marginLeft: 10
   },
   nav_bar_styles: {
-    justifyContent: 'left',
-    alignItems: 'left',
+    justifyContent: 'right',
+    alignItems: 'right',
     display: 'flex',
     height: sizes.header,
     background: colors.pale_red,
     margin: 0,
     paddingTop: 5,
+    paddingRight : 20,
   },
 
   logout_button: {
@@ -1187,7 +1188,7 @@ const MainPage = props => {
   return (
     <div className={css(appStyles.app_style)} style={{ height: "100vh" }}>
       <div className={css(appStyles.nav_bar_styles)}>
-        <h1 className={css(appStyles.nav_header_styles)}>Manhole Metrics Dashboard</h1>
+        {/* <h1 className={css(appStyles.nav_header_styles)}>Manhole Metrics Dashboard</h1> */}
         <Button className={css(appStyles.nav_button_styles)} onClick={() => setNavState('device-metrics')}>Device Metrics Page</Button>
         <Button className={css(appStyles.nav_button_styles)} onClick={() => setNavState('accounts-page')}>Accounts Page</Button>
         <Button className={css(appStyles.logout_button)} onClick={() => auth_manager.logout()}>Logout</Button>
@@ -1217,9 +1218,9 @@ function App() {
   if (!auth.validToken) {
     return (
       <div className={css(appStyles.app_style)} style={{ height: "100vh" }}>
-        <div className={css(appStyles.nav_bar_styles)}>
+        {/* <div className={css(appStyles.nav_bar_styles)}>
           <h1 className={css(appStyles.nav_header_styles)}>Manhole Metrics Dashboard</h1>
-        </div>
+        </div> */}
         <LoginPage></LoginPage>
       </div>
     )
