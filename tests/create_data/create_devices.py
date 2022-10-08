@@ -1,25 +1,26 @@
 
+from schemas.mongo_models.device_models import MongoDevice, GeoJson2DPoint, MongoDeviceDataEntry
+from schemas.mongo_models.account_models import MongoCompanyAccount, MongoCompany
+from passlib.context import CryptContext
+from beanie import init_beanie
+import motor
 import asyncio
 import time
 import math
 import os
 import sys
+import random
 cwd = os.getcwd()
 sys.path.append(cwd)
-
-import motor
-from beanie import init_beanie
-from passlib.context import CryptContext
-
-from schemas.mongo_models.account_models import MongoCompanyAccount, MongoCompany
-from schemas.mongo_models.device_models import MongoDevice, GeoJson2DPoint, MongoDeviceDataEntry
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 async def main():
-    client = motor.motor_asyncio.AsyncIOMotorClient(os.environ['mongo_database_url'] )
-    await init_beanie(database=client['test'] if os.environ['ENV'] == 'DEV' else client['main'], document_models=[MongoCompany,MongoCompanyAccount, MongoDevice])
+    client = motor.motor_asyncio.AsyncIOMotorClient(
+        os.environ['mongo_database_url'])
+    await init_beanie(database=client['test'] if os.environ['ENV'] == 'DEV' else client['main'], document_models=[MongoCompany, MongoCompanyAccount, MongoDevice])
     print('making')
     # mongo_company = MongoCompany.construct()
     # mongo_company.name = 'test'
@@ -31,13 +32,12 @@ async def main():
     # mongo_account.company_id = mongo_company.id
     # await mongo_account.save()
 
-
     company = await MongoCompany.find_one(MongoCompany.name == 'test')
     # company.labels = {
     # }
     # await company.save()
 
-    device : MongoDevice = MongoDevice.construct()
+    device: MongoDevice = MongoDevice.construct()
     device.device_id = 10
     device.device_secret = 20
     device.aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
@@ -54,9 +54,10 @@ async def main():
     #     device.past_day_data.append(entry)
     device.company_id = company.id
     device.creation_date = int(time.time())
-    device.location = GeoJson2DPoint(coordinates=(51.500,-0.1743))
+    device.location = GeoJson2DPoint(coordinates=(51.500 + (random.randint(-500, 500) / 10000),
+                                                  -0.1743 + (random.randint(-500, 500) / 10000)))
     device.warning_level = 5
-    device.warning_level_percentage  = 50
+    device.warning_level_percentage = 50
     device.installation_comment = ''
     device.comments = ''
     device.pinned = False
@@ -65,7 +66,7 @@ async def main():
 
     for i in range(20):
         i = i * 10 + 50
-        device : MongoDevice = MongoDevice.construct()
+        device: MongoDevice = MongoDevice.construct()
         device.device_id = i
         device.device_secret = 30
         device.aes_key = b'\x12!\xfbLT\xf6\xd1YY}\xc9\xd4i\xdb\xb9\x92'
@@ -82,10 +83,13 @@ async def main():
             device.past_day_data.append(entry)
         device.company_id = company.id
         device.creation_date = int(time.time())
-        device.location = GeoJson2DPoint(coordinates=(51.498,-0.1832))
+        device.location = GeoJson2DPoint(
+            coordinates=(51.498 + (random.randint(-3000, 3000) / 10000),
+                         -0.1832 + (random.randint(-3000, 3000) / 10000))
+        )
         device.warning_level = 5
         device.setup_complete = True
-        device.warning_level_percentage  = 50
+        device.warning_level_percentage = 50
         device.installation_comment = ''
         device.comments = ''
         device.pinned = False

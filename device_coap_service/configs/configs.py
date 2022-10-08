@@ -13,4 +13,5 @@ class Config:
     application_name : str = "company-account-service"
     version = "0.0.1"
     measurements_api : str = "/measurements"
+    setup_api : str = '/setup'
     aes_api : str = '/aes_key'

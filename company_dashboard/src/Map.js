@@ -174,11 +174,12 @@ export default function MapContainer() {
     });
   });
   const mapStyles = {
-    height: (parseInt(panel.hTop.replace(/px/, "")) - 40) + "px",
+    height: (parseInt(panel.hTop.replace(/px/, "")) - 30) + "px",
+    width : (parseInt(panel.vLeft.replace(/px/, "")) - 40) + "px",
   };
   return (
     <div>
-      <div style={{ height: mapStyles.height }}>
+      <div style={{ height: mapStyles.height, width : mapStyles.width}}>
         <div ref={mapContainer} style={{ height: '100%' }} />
       </div>
     </div>

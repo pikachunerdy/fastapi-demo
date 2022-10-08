@@ -5,3 +5,5 @@
 mosquitto/**/*.*
 setenv
 **/env
+.env
+*.*.pyc

@@ -4,12 +4,14 @@ import asyncio
 
 import aiocoap.resource as resource
 import aiocoap
-from schemas.encodings.device_server_encoding import DeviceServerEncoding, ServerDeviceEncoding
 
+from schemas.encodings.device_server_encoding import DeviceServerEncoding, DeviceSetupEncoding, ServerDeviceEncoding
 from schemas.request_models.device_service.device_settings import Settings
 from schemas.request_models.device_service.device_measurements import DeviceServerMessage, Measurements
 from schemas.request_models.device_service.device_settings import Settings
+from schemas.request_models.device_service.device_setup import SetupRequest
 from libs.byte_encoder.encoder import TemplateBase, Encoder
+
 from configs.configs import environmentSettings, Config
 
 #  'http://localhost:8002/measurements' if environmentSettings.ENV == 'DEV' else 'url'
@@ -57,9 +59,8 @@ class MeasurementsHandler(resource.Resource):
         aes_key = requests.get(
             (environmentSettings.DEVICE_SERVICE_URL +
              Config.aes_api + '?device_id=' + str(device_id)),
-            headers={environmentSettings.API_KEY_NAME: environmentSettings.API_KEY, })
+            headers={environmentSettings.API_KEY_NAME: environmentSettings.API_KEY, }, timeout=3)
         aes_key = aes_key.content
-        print(aes_key)
         # payload_bytes = encoder.decrypt(payload_bytes, aes_key)
         device_server_encoding: DeviceServerEncoding = encoder.decode_bytes(
             payload_bytes, encryption_key=aes_key)
@@ -84,7 +85,7 @@ class MeasurementsHandler(resource.Resource):
         response = requests.post(
             (environmentSettings.DEVICE_SERVICE_URL + Config.measurements_api),
             data=device_server_message.json(),
-            headers={environmentSettings.API_KEY_NAME: environmentSettings.API_KEY})
+            headers={environmentSettings.API_KEY_NAME: environmentSettings.API_KEY}, timeout=3)
         settings = Settings(**response.json())
         encoded_settings = ServerDeviceEncoding()
         encoded_settings.measurement_sleep_time_s = settings.measurement_sleep_time_s
@@ -104,6 +105,47 @@ class MeasurementsHandler(resource.Resource):
         #     return aiocoap.Message(payload=bytes())
 
 
+class SetupHandler(resource.Resource):
+
+    '''
+    Device Setup Request
+    '''
+
+    @staticmethod
+    def decode_request(payload_bytes: bytes) -> tuple[SetupRequest, bytes]:
+        '''Convert coap bytes to DeviceServer Message'''
+        encoder = Encoder(DeviceSetupEncoding)
+        if not encoder.validate_header(payload_bytes):
+            raise Exception
+        setup_request = SetupRequest.construct()
+        device_id = encoder.get_id(payload_bytes)
+        aes_key = requests.get(
+            (environmentSettings.DEVICE_SERVICE_URL +
+             Config.aes_api + '?device_id=' + str(device_id)),
+            headers={environmentSettings.API_KEY_NAME: environmentSettings.API_KEY, }, timeout=3)
+        aes_key = aes_key.content
+        # payload_bytes = encoder.decrypt(payload_bytes, aes_key)
+        device_setup_encoding: DeviceSetupEncoding = encoder.decode_bytes(
+            payload_bytes, encryption_key=aes_key)
+        setup_request.device_id = device_id
+        setup_request.company_id = device_setup_encoding.company_id
+        setup_request.account_id = device_setup_encoding.account_id
+        return setup_request, aes_key
+
+    async def render_post(self, request):
+        '''Response to a post request'''
+
+        setup_request, _ = SetupHandler.decode_request(
+            request.payload)
+        response = requests.post(
+            (environmentSettings.DEVICE_SERVICE_URL + Config.setup_api),
+            data=setup_request.json(),
+            headers={environmentSettings.API_KEY_NAME: environmentSettings.API_KEY}, timeout=3)
+        if response is None:
+            raise Exception
+        return aiocoap.Message()
+
+
 async def main():
     '''App entry point'''
     root = resource.Site()
@@ -118,4 +160,8 @@ async def main():
     await asyncio.get_running_loop().create_future()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    while True:
+        try:
+            asyncio.run(main())
+        except:
+            ...

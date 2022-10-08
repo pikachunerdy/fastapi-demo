@@ -37,12 +37,15 @@ import { auth_manager, device_list_manager, account_manager, company_manager } f
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
 const colors = {
-  pale_red: "#3487f5",
+  text_color: 'black',
+  blue: "#000099",
   white: "#ffffff",
-  light_grey: "#b0b0b0",
+  light_grey: "#eff7f7",
   light_blue: "#75d1d0",
   dark_grey: "#616161",
-  dark_blue: "#006c6e"
+  dark_blue: "#252c39",
+  light_blue : "#60CAD4",
+  light_orange : "#FCAA8E",
 };
 
 const sizes = {
@@ -59,8 +62,8 @@ const styles = {
     // borderColor : '#232223',
     // backgroundColor: '#232323',
     height: '100%',
-    backgroundColor: '#1c1c1c',
-    borderColor: '#1c1c1c',
+    backgroundColor: colors.white,
+    borderColor: colors.white,
   },
   container_styles: {
   },
@@ -69,12 +72,12 @@ const styles = {
     padding: 20,
     margin: 5,
     width: '100%',
-    color: '#e7eded',
+    color: colors.text_color,
     fontSize: 25,
     float: 'left',
     clear: 'right',
-    backgroundColor: '#232223',
-    borderColor: '#232223',
+    backgroundColor: colors.white,
+    borderColor: colors.white,
     display: 'flex'
 
   },
@@ -126,6 +129,7 @@ const modified_styles = {
 }
 
 const MapComponent = (args) => {
+  const panel = useRecoilValue(panelSizes);
   const K_WIDTH = 40;
   const K_HEIGHT = 40;
   const placeStyle = {
@@ -148,15 +152,16 @@ const MapComponent = (args) => {
   };
 
   var deviceList = useRecoilValue(deviceListState);
-  var height = (parseInt(getRecoil(panelSizes).hTop.replace(/px/, "")) - 40) + "px";
+  var height = (parseInt(panel.hTop.replace(/px/, "")) - 20) + "px";
+  const width = (parseInt(panel.vLeft.replace(/px/, "")) - 30) + "px";
   const mapComponentStyles = StyleSheet.create({
     card_style: {
       ...styles.card_style,
       height: height,
-      width: '97%'
+      width: width,
     }
   });
-  return <div className={css(mapComponentStyles.card_style)} style={{ width: "100%", height: height }}>
+  return <div className={css(mapComponentStyles.card_style)} style={{ width: width, height: height }}>
     <MapContainer style={{ width: "100%", height: height }}></MapContainer>
   </div>;
 }
@@ -164,15 +169,15 @@ const MapComponent = (args) => {
 const deviceListComponentStyles = StyleSheet.create({
   card_style: {
     ...styles.card_style,
-    backgroundColor: '#1c1c1c',
-    borderColor: '#1c1c1c',
+    backgroundColor: colors.white,
+    borderColor: colors.white,
     paddingTop: 0,
     marginTop: 0,
     overflow: 'scroll'
   },
   card_body_style: {
     ...styles.card_style,
-    backgroundColor: '#232223',
+    backgroundColor: colors.white,
     borderColor: '#232223',
     paddingTop: 0,
     marginTop: 0,
@@ -186,6 +191,8 @@ const deviceListComponentStyles = StyleSheet.create({
   },
   col_styles: {
     ...styles.col_styles,
+    backgroundColor : colors.light_blue,
+    borderRadius : 3,
     minWidth: 'fit-content'
   },
   label_col_style: {
@@ -194,8 +201,8 @@ const deviceListComponentStyles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 12,
     paddingLeft: 0,
-    paddingRight: 0,
     margin: 0,
+    marginRight : 5,
     maxWidth: 'fit-content',
   },
   label_badge_style: {
@@ -216,7 +223,9 @@ const deviceListComponentStyles = StyleSheet.create({
     marginRight: 0
   },
   button_styles: {
-    ...styles.button_styles
+    ...styles.button_styles,
+    backgroundColor : colors.light_orange,
+    borderColor : colors.light_orange,
   },
   filter_button_styles: {
     ...styles.button_styles,
@@ -248,9 +257,9 @@ const deviceListComponentStyles = StyleSheet.create({
   },
   header_styles: {
     ...styles.header_styles,
-    backgroundColor: '#1c1c1c',
-    borderColor: '#1c1c1c',
-    paddingTop: 0,
+    backgroundColor: colors.white,
+    borderColor: colors.white,
+    paddingTop: 5,
     marginTop: 0,
     marginBottom: 0,
     paddingBottom: 10,
@@ -450,7 +459,7 @@ const HorizontalSplit = props => {
           minSize={parseInt(0.1 * vh).toString() + "px"}
           maxSize={parseInt(0.9 * vh).toString() + "px"}
         >
-          <div style={{ maxHeight: bottomHeight, height: bottomHeight }}>
+          <div style={{ maxHeight: bottomHeight, height: bottomHeight, paddingTop : 5 }}>
             <div
               style={{
                 maxHeight: bottomHeight,
@@ -472,13 +481,13 @@ const card_body_padding_right = 15;
 const deviceInfoPanelStyles = StyleSheet.create({
   card_style: {
     ...styles.card_style,
-    backgroundColor: '#232223',
-    borderColor: '#232223',
+    backgroundColor: colors.white,
+    borderColor: colors.white,
     // overflowY: "scroll",
     height: '100%'
   },
   labels_card_style: {
-    backgroundColor: '#232223',
+    backgroundColor: colors.dark_blue,
     borderColor: '#232223',
     overflowY: "scroll",
     height: 'auto',
@@ -495,7 +504,7 @@ const deviceInfoPanelStyles = StyleSheet.create({
   },
   card_body_style: {
     ...styles.card_style,
-    backgroundColor: '#232223',
+    backgroundColor: colors.white,
     borderColor: '#232223',
     paddingTop: 0,
     marginTop: 0,
@@ -583,7 +592,7 @@ const deviceInfoPanelStyles = StyleSheet.create({
     padding: 0,
   },
   comments_style: {
-    backgroundColor: '#232223',
+    backgroundColor: colors.dark_blue,
     borderColor: '#999999',
     borderWidth: 2,
     marginLeft: 5,
@@ -596,7 +605,7 @@ const deviceInfoPanelStyles = StyleSheet.create({
   },
   warning_level_style: {
     width: '10em',
-    backgroundColor: '#232223',
+    backgroundColor: colors.dark_blue,
     borderColor: '#999999',
     borderWidth: 2,
     marginLeft: 5,
@@ -1128,12 +1137,13 @@ const LoginPage = props => {
 const appStyles = StyleSheet.create({
   app_style: {
     textAlign: "left",
-    backgroundColor: '#1c1c1c'
+    backgroundColor: colors.light_grey,
   },
   nav_button_styles: {
     display: 'inline-block',
     float: 'left',
     borderColor: '#aad8e2',
+    backgroundColor : colors.blue,
     paddingTop: 0,
     paddingBottom: 0,
     marginLeft: 10,
@@ -1149,16 +1159,16 @@ const appStyles = StyleSheet.create({
     alignItems: 'right',
     display: 'flex',
     height: sizes.header,
-    background: colors.pale_red,
+    background: colors.blue,
     margin: 0,
     paddingTop: 5,
     paddingRight : 20,
   },
-
   logout_button: {
     display: 'inline-block',
     float: 'right',
     borderColor: '#aad8e2',
+    backgroundColor : colors.blue,
     paddingTop: 0,
     paddingBottom: 0,
     marginLeft: 10,

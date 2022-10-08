@@ -1,7 +1,6 @@
 '''Encodings for messages send from the device service to the sensors'''
 
-from pipes import Template
-from libs.byte_encoder.encoder import TemplateBase, TemplateInt, TemplateVarList
+from libs.byte_encoder.encoder import TemplateBase, TemplateFixedList, TemplateFloat64, TemplateInt, TemplateNullTerminatedString, TemplateVarList
 
 class MeasurementEncoding(TemplateBase):
     '''Encoding for a sensor measurement'''
@@ -40,3 +39,14 @@ class ServerDeviceEncoding(TemplateBase):
     warning_message_wait_time_s : int = TemplateInt(3)
     warning_measurement_sleep_time_s : int = TemplateInt(3)
     code_version : int = TemplateInt(3)
+
+class DeviceSetupEncoding(TemplateBase):
+    '''Encoding for a message from a device to the server to setup the device'''
+    class Config(TemplateBase.Config):
+        '''Encoding Config'''
+        USE_ID = True
+        ID_LENGTH = 4
+        USE_ENCRYPTION = True
+    company_id : str = TemplateNullTerminatedString()
+    account_id : str = TemplateNullTerminatedString()
+    coordinates : tuple[float,float] = TemplateFixedList(2,TemplateFloat64)

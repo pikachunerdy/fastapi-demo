@@ -2,7 +2,7 @@
 Device Mongo Models
 '''
 
-from typing import Tuple
+from typing import Optional, Tuple
 from pydantic import BaseModel
 from beanie.odm.fields import PydanticObjectId
 from beanie import Document
@@ -55,6 +55,7 @@ class MongoDevice(Document):
     max_distance_mm : int = 2000
     # set to true on completion of setup
     setup_complete : bool = False
+    setup_account_id : Optional[str] = None
 
     battery_percentage : int = 100
 

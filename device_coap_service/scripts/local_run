@@ -6,6 +6,7 @@ cp -r ../libs ./libs
 
 export PYTHONPATH=$PYTHONPATH:../
 export ENV=DEV
+source ./env/bin/activate
 python3 main.py
 
 rm -r ./libs 2> /dev/null

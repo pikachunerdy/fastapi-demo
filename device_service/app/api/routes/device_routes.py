@@ -1,11 +1,13 @@
 '''Routes for communicating device information'''
 from fastapi.param_functions import Body, Depends
 from fastapi import Response
+from beanie.odm.fields import PydanticObjectId
 
 from libs.authentication.inter_service_auth import validate_api_key
 from schemas.request_models.device_service.device_measurements import DeviceServerMessage
 from schemas.request_models.device_service.device_settings import Settings
-from schemas.mongo_models.device_models import MongoDevice, MongoDeviceDataEntry
+from schemas.mongo_models.device_models import GeoJson2DPoint, MongoDevice, MongoDeviceDataEntry
+from schemas.request_models.device_service.device_setup import SetupRequest
 
 from app.api.main import app
 from app.api.tasks.update_average_measurements import process_average_measurements_task
@@ -20,6 +22,20 @@ async def get_aes_key(device_id: int, _= Depends(validate_api_key)) -> bytes:
         raise Exception()
     return Response(content=mongo_device.aes_key)
 
+@app.post('/device_activation', tags=['DeviceSetup'])
+async def post_device_activation(request : SetupRequest = Body(...), _= Depends(validate_api_key)):
+    '''Sent by a device when it is set up by the user'''
+    mongo_device = await MongoDevice.find(
+        MongoDevice.device_id == request.device_id).first_or_none()
+    if mongo_device is None:
+        raise Exception()
+    mongo_device.location = GeoJson2DPoint(
+        coordinates = request.coordinates
+    )
+    mongo_device.company_id = PydanticObjectId(request.company_id)
+    mongo_device.setup_complete = True
+    mongo_device.setup_account_id = PydanticObjectId(request.account_id)
+    mongo_device.save()
 
 @app.post('/measurements', tags=["Measurements"])
 async def post_measurements(

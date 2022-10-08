@@ -8,6 +8,7 @@
 from typing import Optional, Tuple, Type, Union
 from Crypto.Cipher import AES
 from Crypto import Random
+import struct
 
 ByteOffset = int
 
@@ -47,6 +48,21 @@ class TemplateInt(TemplateType):
             encoded_data[index: index + self.byte_width],
             config.ENDIAN, signed=False), self.byte_width
 
+class TemplateFloat64(TemplateType):
+    '''Float 64 Type'''
+
+
+    def convert_to_bytes(self, data: float, config: 'TemplateBase.Config') -> bytes:
+        ba = bytearray(struct.pack("f", data))
+        if len(ba) != 8:
+            raise Exception
+        return ba
+
+    def convert_from_bytes(self,
+                           encoded_data: bytes,
+                           index: int, config: 'TemplateBase.Config') -> tuple[int, ByteOffset]:
+        return struct.unpack('f', encoded_data)
+
 
 class TemplateString(TemplateType):
     '''String Type of fixed length'''
@@ -66,6 +82,22 @@ class TemplateString(TemplateType):
                            index: int, config: 'TemplateBase.Config') -> tuple[str, ByteOffset]:
         return encoded_data[index: index + self.byte_width].decode(
             config.STR_ENCODING), self.byte_width
+
+# class TemplateVarString(TemplateType):
+#     '''String Type of fixed length'''
+
+#     def convert_to_bytes(self, data: str, config: 'TemplateBase.Config') -> bytes:
+#         '''Convert data to bytes'''
+#         # TODO ensure correct length of bytes
+#         string_bytes = bytearray(data.encode(config.STR_ENCODING))
+#         len_string_bytes = len(string_bytes)
+#         string_bytes =
+
+#     def convert_from_bytes(self,
+#                            encoded_data: bytes,
+#                            index: int, config: 'TemplateBase.Config') -> tuple[str, ByteOffset]:
+#         return encoded_data[index: index + self.byte_width].decode(
+#             config.STR_ENCODING), self.byte_width
 
 
 class TemplateNullTerminatedString(TemplateType):
