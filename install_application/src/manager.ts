@@ -52,11 +52,12 @@ interface SetupStateMessage {
     confirmedCompletion: boolean,
 }
 
-const setup_server_address = '';
+const setup_server_address = 'http://192.168.4.1:80';
 
 export const setupManager = {
 
     checkConnected: async () => {
+        console.log('checking connection')
         try {
             // check connected
             var obj = {
@@ -68,12 +69,15 @@ export const setupManager = {
                     }
                 }
             };
+            console.log(obj.link);
             await fetch(obj.link, obj.object)
                 .then(response => {
+                    alert(response.status);
+                    console.log(response)
                     if (response.status === 200) {
                         setRecoil(deviceSetupStateAtom,
                             {
-                                connected: false,
+                                connected: true,
                                 deviceID: null,
                                 setMaxDistance_mm: false,
                                 maxDistance_mm: null,
@@ -89,12 +93,14 @@ export const setupManager = {
                     } else {
                         setRecoil(deviceSetupStateAtom, {
                             ...getRecoil(deviceSetupStateAtom),
-                            connected: true,
+                            connected: false,
                         });
                     }
+                    return;
                 });
             await setupManager.getSetupState();
         } catch {
+            console.log('caight')
             return;
         }
     },
